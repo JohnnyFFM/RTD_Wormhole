@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using WatsonWebsocket;
 
 namespace RTD_Wormhole
 {
@@ -60,6 +61,7 @@ namespace RTD_Wormhole
 
         private void btn_server_Click(object sender, EventArgs e)
         {
+            // Connect RTD
             if (!RTDclient.Connected)
             {
                 srv_status.Text = "Connecting to RTD server...";
@@ -73,6 +75,35 @@ namespace RTD_Wormhole
                 server_rtd_status.Image = imageList.Images[0];
                 srv_status.Text = "RTD server disconnected.";
             }
+            // Start Server
+            srv_status.Text = "Starting Wormhole server...";
+            // DEBUG: TODO Change from Localhost
+            WatsonWsServer server = new WatsonWsServer(tb_client_ip.Text, Decimal.ToInt32(ud_srv_port.Value), false);
+            server.ClientConnected += WSClientConnected;
+            //server.ClientDisconnected += ClientDisconnected;
+            //server.MessageReceived += MessageReceived;
+            server.Start();
+            server_ws_status.Image = imageList.Images[2];
+            server_link_status.Image = imageList.Images[1];
+            srv_status.Text = "Wormhole server running. Awaiting connection...";
+
+        }
+        private void btn_client_Click(object sender, EventArgs e)
+        {
+            WatsonWsClient client = new WatsonWsClient(tb_client_ip.Text, Decimal.ToInt32(ud_client_port.Value), false);
+            //client.ServerConnected += ServerConnected;
+            //client.ServerDisconnected += ServerDisconnected;
+            //client.MessageReceived += MessageReceived;
+            client.Start();
+            client_ws_status.Image = imageList.Images[2];
+        }
+
+        void WSClientConnected(object sender, ClientConnectedEventArgs args)
+        {
+            PostUI(() =>
+            {
+                server_link_status.Image = imageList.Images[2];
+            });
         }
 
         void Client_OnHeartBeatLost(object sender, EventArgs e)
@@ -81,15 +112,15 @@ namespace RTD_Wormhole
             {
                 server_rtd_status.Image = imageList.Images[1];
                 srv_status.Text = "RTD Heartbeat lost. Reconnecting...";
-                System.Threading.Tasks.Task.Delay(10 * 1000).ContinueWith((_) => ConnectRTD());
+                System.Threading.Tasks.Task.Delay(10 * 1000).ContinueWith((_) => PostUI(() =>
+            { ConnectRTD(); }));
             });
         }
 
         private void ConnectRTD()
         {
             bool ret = RTDclient.Connect("xrtd.xrtd", -1);
-            PostUI(() =>
-            {
+
                 if (ret)
                 {
                     srv_status.Text = "RTD Connected.";
@@ -100,7 +131,7 @@ namespace RTD_Wormhole
                     srv_status.Text = "RTD Connection failed.";
                     server_rtd_status.Image = imageList.Images[1];
                 }
-            });
+
         }
 
         void Client_OnDisconnect(object sender, EventArgs e)
@@ -117,5 +148,7 @@ namespace RTD_Wormhole
             // push through warmhole until success 
             // nothing bad can happen if the same message is repeated
         }
+
+
     }
 }

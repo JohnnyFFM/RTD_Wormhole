@@ -52,25 +52,25 @@
             this.ud_client_port = new System.Windows.Forms.NumericUpDown();
             this.label3 = new System.Windows.Forms.Label();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.label14 = new System.Windows.Forms.Label();
+            this.pictureBox5 = new System.Windows.Forms.PictureBox();
+            this.label13 = new System.Windows.Forms.Label();
+            this.pictureBox4 = new System.Windows.Forms.PictureBox();
+            this.label12 = new System.Windows.Forms.Label();
+            this.client_ws_status = new System.Windows.Forms.PictureBox();
+            this.label11 = new System.Windows.Forms.Label();
+            this.server_link_status = new System.Windows.Forms.PictureBox();
+            this.label10 = new System.Windows.Forms.Label();
+            this.server_ws_status = new System.Windows.Forms.PictureBox();
+            this.label9 = new System.Windows.Forms.Label();
+            this.server_rtd_status = new System.Windows.Forms.PictureBox();
+            this.client_status = new System.Windows.Forms.Label();
+            this.srv_status = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.textBox1 = new System.Windows.Forms.TextBox();
-            this.srv_status = new System.Windows.Forms.Label();
-            this.client_status = new System.Windows.Forms.Label();
             this.imageList = new System.Windows.Forms.ImageList(this.components);
-            this.server_rtd_status = new System.Windows.Forms.PictureBox();
-            this.label9 = new System.Windows.Forms.Label();
-            this.label10 = new System.Windows.Forms.Label();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
-            this.label11 = new System.Windows.Forms.Label();
-            this.pictureBox2 = new System.Windows.Forms.PictureBox();
-            this.label12 = new System.Windows.Forms.Label();
-            this.pictureBox3 = new System.Windows.Forms.PictureBox();
-            this.label13 = new System.Windows.Forms.Label();
-            this.pictureBox4 = new System.Windows.Forms.PictureBox();
-            this.label14 = new System.Windows.Forms.Label();
-            this.pictureBox5 = new System.Windows.Forms.PictureBox();
             this.menuStrip1.SuspendLayout();
             this.toolStrip.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -78,13 +78,13 @@
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ud_client_port)).BeginInit();
             this.groupBox3.SuspendLayout();
-            this.groupBox4.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.server_rtd_status)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox5)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.client_ws_status)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.server_link_status)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.server_ws_status)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.server_rtd_status)).BeginInit();
+            this.groupBox4.SuspendLayout();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -147,6 +147,7 @@
             this.btn_client.Name = "btn_client";
             this.btn_client.Size = new System.Drawing.Size(58, 22);
             this.btn_client.Text = "Client";
+            this.btn_client.Click += new System.EventHandler(this.btn_client_Click);
             // 
             // groupBox1
             // 
@@ -247,7 +248,7 @@
             this.tb_client_progid.Name = "tb_client_progid";
             this.tb_client_progid.Size = new System.Drawing.Size(100, 20);
             this.tb_client_progid.TabIndex = 5;
-            this.tb_client_progid.Text = "xrtd.xrtd";
+            this.tb_client_progid.Text = "yrtd.xrtd";
             this.tb_client_progid.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // label5
@@ -265,7 +266,7 @@
             this.tb_client_ip.Name = "tb_client_ip";
             this.tb_client_ip.Size = new System.Drawing.Size(100, 20);
             this.tb_client_ip.TabIndex = 1;
-            this.tb_client_ip.Text = "192.168.178.110";
+            this.tb_client_ip.Text = "127.0.0.1";
             this.tb_client_ip.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // label4
@@ -311,11 +312,11 @@
             this.groupBox3.Controls.Add(this.label13);
             this.groupBox3.Controls.Add(this.pictureBox4);
             this.groupBox3.Controls.Add(this.label12);
-            this.groupBox3.Controls.Add(this.pictureBox3);
+            this.groupBox3.Controls.Add(this.client_ws_status);
             this.groupBox3.Controls.Add(this.label11);
-            this.groupBox3.Controls.Add(this.pictureBox2);
+            this.groupBox3.Controls.Add(this.server_link_status);
             this.groupBox3.Controls.Add(this.label10);
-            this.groupBox3.Controls.Add(this.pictureBox1);
+            this.groupBox3.Controls.Add(this.server_ws_status);
             this.groupBox3.Controls.Add(this.label9);
             this.groupBox3.Controls.Add(this.server_rtd_status);
             this.groupBox3.Controls.Add(this.client_status);
@@ -328,6 +329,146 @@
             this.groupBox3.TabIndex = 4;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Status";
+            // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label14.Location = new System.Drawing.Point(337, 147);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(36, 16);
+            this.label14.TabIndex = 15;
+            this.label14.Text = "Link";
+            // 
+            // pictureBox5
+            // 
+            this.pictureBox5.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox5.Image")));
+            this.pictureBox5.Location = new System.Drawing.Point(315, 147);
+            this.pictureBox5.Name = "pictureBox5";
+            this.pictureBox5.Size = new System.Drawing.Size(16, 16);
+            this.pictureBox5.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
+            this.pictureBox5.TabIndex = 14;
+            this.pictureBox5.TabStop = false;
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label13.Location = new System.Drawing.Point(203, 147);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(106, 16);
+            this.label13.TabIndex = 13;
+            this.label13.Text = "RTDserver -->";
+            // 
+            // pictureBox4
+            // 
+            this.pictureBox4.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox4.Image")));
+            this.pictureBox4.Location = new System.Drawing.Point(181, 147);
+            this.pictureBox4.Name = "pictureBox4";
+            this.pictureBox4.Size = new System.Drawing.Size(16, 16);
+            this.pictureBox4.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
+            this.pictureBox4.TabIndex = 12;
+            this.pictureBox4.TabStop = false;
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label12.Location = new System.Drawing.Point(32, 147);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(143, 16);
+            this.label12.TabIndex = 11;
+            this.label12.Text = "Wormhole Client -->";
+            // 
+            // client_ws_status
+            // 
+            this.client_ws_status.Image = ((System.Drawing.Image)(resources.GetObject("client_ws_status.Image")));
+            this.client_ws_status.Location = new System.Drawing.Point(10, 147);
+            this.client_ws_status.Name = "client_ws_status";
+            this.client_ws_status.Size = new System.Drawing.Size(16, 16);
+            this.client_ws_status.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
+            this.client_ws_status.TabIndex = 10;
+            this.client_ws_status.TabStop = false;
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label11.Location = new System.Drawing.Point(343, 65);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(36, 16);
+            this.label11.TabIndex = 9;
+            this.label11.Text = "Link";
+            // 
+            // server_link_status
+            // 
+            this.server_link_status.Image = ((System.Drawing.Image)(resources.GetObject("server_link_status.Image")));
+            this.server_link_status.Location = new System.Drawing.Point(321, 65);
+            this.server_link_status.Name = "server_link_status";
+            this.server_link_status.Size = new System.Drawing.Size(16, 16);
+            this.server_link_status.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
+            this.server_link_status.TabIndex = 8;
+            this.server_link_status.TabStop = false;
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label10.Location = new System.Drawing.Point(165, 65);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(150, 16);
+            this.label10.TabIndex = 7;
+            this.label10.Text = "Wormhole Server -->";
+            // 
+            // server_ws_status
+            // 
+            this.server_ws_status.Image = ((System.Drawing.Image)(resources.GetObject("server_ws_status.Image")));
+            this.server_ws_status.Location = new System.Drawing.Point(143, 65);
+            this.server_ws_status.Name = "server_ws_status";
+            this.server_ws_status.Size = new System.Drawing.Size(16, 16);
+            this.server_ws_status.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
+            this.server_ws_status.TabIndex = 6;
+            this.server_ws_status.TabStop = false;
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label9.Location = new System.Drawing.Point(38, 65);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(99, 16);
+            this.label9.TabIndex = 5;
+            this.label9.Text = "RTDclient -->";
+            // 
+            // server_rtd_status
+            // 
+            this.server_rtd_status.Image = ((System.Drawing.Image)(resources.GetObject("server_rtd_status.Image")));
+            this.server_rtd_status.Location = new System.Drawing.Point(10, 65);
+            this.server_rtd_status.Name = "server_rtd_status";
+            this.server_rtd_status.Size = new System.Drawing.Size(16, 16);
+            this.server_rtd_status.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
+            this.server_rtd_status.TabIndex = 4;
+            this.server_rtd_status.TabStop = false;
+            // 
+            // client_status
+            // 
+            this.client_status.AutoSize = true;
+            this.client_status.Font = new System.Drawing.Font("Consolas", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.client_status.Location = new System.Drawing.Point(84, 105);
+            this.client_status.Name = "client_status";
+            this.client_status.Size = new System.Drawing.Size(117, 19);
+            this.client_status.TabIndex = 3;
+            this.client_status.Text = "Disconnected";
+            // 
+            // srv_status
+            // 
+            this.srv_status.AutoSize = true;
+            this.srv_status.Font = new System.Drawing.Font("Consolas", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.srv_status.Location = new System.Drawing.Point(84, 29);
+            this.srv_status.Name = "srv_status";
+            this.srv_status.Size = new System.Drawing.Size(117, 19);
+            this.srv_status.TabIndex = 2;
+            this.srv_status.Text = "Disconnected";
             // 
             // label8
             // 
@@ -367,26 +508,6 @@
             this.textBox1.Size = new System.Drawing.Size(727, 107);
             this.textBox1.TabIndex = 0;
             // 
-            // srv_status
-            // 
-            this.srv_status.AutoSize = true;
-            this.srv_status.Font = new System.Drawing.Font("Consolas", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.srv_status.Location = new System.Drawing.Point(84, 29);
-            this.srv_status.Name = "srv_status";
-            this.srv_status.Size = new System.Drawing.Size(117, 19);
-            this.srv_status.TabIndex = 2;
-            this.srv_status.Text = "Disconnected";
-            // 
-            // client_status
-            // 
-            this.client_status.AutoSize = true;
-            this.client_status.Font = new System.Drawing.Font("Consolas", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.client_status.Location = new System.Drawing.Point(84, 105);
-            this.client_status.Name = "client_status";
-            this.client_status.Size = new System.Drawing.Size(117, 19);
-            this.client_status.TabIndex = 3;
-            this.client_status.Text = "Disconnected";
-            // 
             // imageList
             // 
             this.imageList.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageList.ImageStream")));
@@ -394,126 +515,6 @@
             this.imageList.Images.SetKeyName(0, "offline.ico");
             this.imageList.Images.SetKeyName(1, "connecting.ico");
             this.imageList.Images.SetKeyName(2, "online.ico");
-            // 
-            // server_rtd_status
-            // 
-            this.server_rtd_status.Image = ((System.Drawing.Image)(resources.GetObject("server_rtd_status.Image")));
-            this.server_rtd_status.Location = new System.Drawing.Point(10, 65);
-            this.server_rtd_status.Name = "server_rtd_status";
-            this.server_rtd_status.Size = new System.Drawing.Size(16, 16);
-            this.server_rtd_status.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
-            this.server_rtd_status.TabIndex = 4;
-            this.server_rtd_status.TabStop = false;
-            // 
-            // label9
-            // 
-            this.label9.AutoSize = true;
-            this.label9.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label9.Location = new System.Drawing.Point(38, 65);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(99, 16);
-            this.label9.TabIndex = 5;
-            this.label9.Text = "RTDclient -->";
-            // 
-            // label10
-            // 
-            this.label10.AutoSize = true;
-            this.label10.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label10.Location = new System.Drawing.Point(165, 65);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(150, 16);
-            this.label10.TabIndex = 7;
-            this.label10.Text = "Wormhole Server -->";
-            // 
-            // pictureBox1
-            // 
-            this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
-            this.pictureBox1.Location = new System.Drawing.Point(143, 65);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(16, 16);
-            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
-            this.pictureBox1.TabIndex = 6;
-            this.pictureBox1.TabStop = false;
-            // 
-            // label11
-            // 
-            this.label11.AutoSize = true;
-            this.label11.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label11.Location = new System.Drawing.Point(343, 65);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(36, 16);
-            this.label11.TabIndex = 9;
-            this.label11.Text = "Link";
-            // 
-            // pictureBox2
-            // 
-            this.pictureBox2.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox2.Image")));
-            this.pictureBox2.Location = new System.Drawing.Point(321, 65);
-            this.pictureBox2.Name = "pictureBox2";
-            this.pictureBox2.Size = new System.Drawing.Size(16, 16);
-            this.pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
-            this.pictureBox2.TabIndex = 8;
-            this.pictureBox2.TabStop = false;
-            // 
-            // label12
-            // 
-            this.label12.AutoSize = true;
-            this.label12.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label12.Location = new System.Drawing.Point(32, 147);
-            this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(143, 16);
-            this.label12.TabIndex = 11;
-            this.label12.Text = "Wormhole Client -->";
-            // 
-            // pictureBox3
-            // 
-            this.pictureBox3.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox3.Image")));
-            this.pictureBox3.Location = new System.Drawing.Point(10, 147);
-            this.pictureBox3.Name = "pictureBox3";
-            this.pictureBox3.Size = new System.Drawing.Size(16, 16);
-            this.pictureBox3.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
-            this.pictureBox3.TabIndex = 10;
-            this.pictureBox3.TabStop = false;
-            // 
-            // label13
-            // 
-            this.label13.AutoSize = true;
-            this.label13.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label13.Location = new System.Drawing.Point(203, 147);
-            this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(106, 16);
-            this.label13.TabIndex = 13;
-            this.label13.Text = "RTDserver -->";
-            // 
-            // pictureBox4
-            // 
-            this.pictureBox4.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox4.Image")));
-            this.pictureBox4.Location = new System.Drawing.Point(181, 147);
-            this.pictureBox4.Name = "pictureBox4";
-            this.pictureBox4.Size = new System.Drawing.Size(16, 16);
-            this.pictureBox4.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
-            this.pictureBox4.TabIndex = 12;
-            this.pictureBox4.TabStop = false;
-            // 
-            // label14
-            // 
-            this.label14.AutoSize = true;
-            this.label14.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label14.Location = new System.Drawing.Point(337, 147);
-            this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(36, 16);
-            this.label14.TabIndex = 15;
-            this.label14.Text = "Link";
-            // 
-            // pictureBox5
-            // 
-            this.pictureBox5.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox5.Image")));
-            this.pictureBox5.Location = new System.Drawing.Point(315, 147);
-            this.pictureBox5.Name = "pictureBox5";
-            this.pictureBox5.Size = new System.Drawing.Size(16, 16);
-            this.pictureBox5.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
-            this.pictureBox5.TabIndex = 14;
-            this.pictureBox5.TabStop = false;
             // 
             // Form1
             // 
@@ -548,14 +549,14 @@
             ((System.ComponentModel.ISupportInitialize)(this.ud_client_port)).EndInit();
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox5)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.client_ws_status)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.server_link_status)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.server_ws_status)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.server_rtd_status)).EndInit();
             this.groupBox4.ResumeLayout(false);
             this.groupBox4.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.server_rtd_status)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox5)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -597,11 +598,11 @@
         private System.Windows.Forms.Label label13;
         private System.Windows.Forms.PictureBox pictureBox4;
         private System.Windows.Forms.Label label12;
-        private System.Windows.Forms.PictureBox pictureBox3;
+        private System.Windows.Forms.PictureBox client_ws_status;
         private System.Windows.Forms.Label label11;
-        private System.Windows.Forms.PictureBox pictureBox2;
+        private System.Windows.Forms.PictureBox server_link_status;
         private System.Windows.Forms.Label label10;
-        private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.PictureBox server_ws_status;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.PictureBox server_rtd_status;
     }
