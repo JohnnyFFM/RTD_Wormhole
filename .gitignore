@@ -1,0 +1,8 @@
+﻿################################################################################
+# Diese .gitignore-Datei wurde von Microsoft(R) Visual Studio automatisch erstellt.
+################################################################################
+
+/.vs
+/RTD Wormhole/bin
+/RTD Wormhole/obj
+/RTD Wormhole/packages
