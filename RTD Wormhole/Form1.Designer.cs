@@ -37,6 +37,7 @@
             this.toolStrip = new System.Windows.Forms.ToolStrip();
             this.btn_server = new System.Windows.Forms.ToolStripButton();
             this.btn_client = new System.Windows.Forms.ToolStripButton();
+            this.btn_testConnection = new System.Windows.Forms.ToolStripButton();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.tb_srv_ip = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
@@ -124,7 +125,8 @@
             // 
             this.toolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.btn_server,
-            this.btn_client});
+            this.btn_client,
+            this.btn_testConnection});
             this.toolStrip.Location = new System.Drawing.Point(0, 24);
             this.toolStrip.Name = "toolStrip";
             this.toolStrip.Size = new System.Drawing.Size(766, 25);
@@ -148,6 +150,15 @@
             this.btn_client.Size = new System.Drawing.Size(58, 22);
             this.btn_client.Text = "Client";
             this.btn_client.Click += new System.EventHandler(this.btn_client_Click);
+            // 
+            // btn_testConnection
+            // 
+            this.btn_testConnection.Image = ((System.Drawing.Image)(resources.GetObject("btn_testConnection.Image")));
+            this.btn_testConnection.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btn_testConnection.Name = "btn_testConnection";
+            this.btn_testConnection.Size = new System.Drawing.Size(112, 22);
+            this.btn_testConnection.Text = "Test Connection";
+            this.btn_testConnection.Click += new System.EventHandler(this.toolStripButton1_Click);
             // 
             // groupBox1
             // 
@@ -605,6 +616,7 @@
         private System.Windows.Forms.PictureBox server_ws_status;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.PictureBox server_rtd_status;
+        private System.Windows.Forms.ToolStripButton btn_testConnection;
     }
 }
 

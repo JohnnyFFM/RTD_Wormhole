@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -18,6 +13,7 @@ namespace RTD_Wormhole
     {
         private readonly SynchronizationContext synchronizationContext;
         readonly RtdClient RTDclient;
+        private WatsonWsClient LinkClient;
 
         public Form1()
         {
@@ -81,20 +77,27 @@ namespace RTD_Wormhole
             WatsonWsServer server = new WatsonWsServer(tb_client_ip.Text, Decimal.ToInt32(ud_srv_port.Value), false);
             server.ClientConnected += WSClientConnected;
             //server.ClientDisconnected += ClientDisconnected;
-            //server.MessageReceived += MessageReceived;
+            server.MessageReceived += MessageReceived;
             server.Start();
             server_ws_status.Image = imageList.Images[2];
             server_link_status.Image = imageList.Images[1];
             srv_status.Text = "Wormhole server running. Awaiting connection...";
 
         }
+
+        static void MessageReceived(object sender, MessageReceivedEventArgs args)
+        {
+            Console.WriteLine("Message received from " + args.IpPort + ": " + Encoding.UTF8.GetString(args.Data));
+        }
+
         private void btn_client_Click(object sender, EventArgs e)
         {
-            WatsonWsClient client = new WatsonWsClient(tb_client_ip.Text, Decimal.ToInt32(ud_client_port.Value), false);
+            LinkClient = new WatsonWsClient(tb_client_ip.Text, Decimal.ToInt32(ud_client_port.Value), false);
             //client.ServerConnected += ServerConnected;
             //client.ServerDisconnected += ServerDisconnected;
             //client.MessageReceived += MessageReceived;
-            client.Start();
+            LinkClient.Start();
+
             client_ws_status.Image = imageList.Images[2];
         }
 
@@ -149,6 +152,40 @@ namespace RTD_Wormhole
             // nothing bad can happen if the same message is repeated
         }
 
+        /// <summary>
+        /// tests the connection between client and server via the Watson-link
+        /// </summary>
+        private async Task<bool> TestConnectionAsync()
+        {
+            if (LinkClient != null)
+            {
+                return await LinkClient.SendAsync("Test message from client");
+            }
+            else
+            {
+                return false;
+            }
+        }
 
+        private async void toolStripButton1_Click(object sender, EventArgs e)
+        {
+            textBox1.AppendText(LogStatement("Sending test message to server"));
+            btn_testConnection.Image = global::RTD_Wormhole.Properties.Resources.disconnected;
+            Task<bool> testCall = TestConnectionAsync();
+            bool testSuccess = await testCall;
+            if (testSuccess)
+            {
+                textBox1.AppendText(LogStatement("Test message was successfully received by server"));
+                btn_testConnection.Image = global::RTD_Wormhole.Properties.Resources.connected;
+            } else
+            {
+                textBox1.AppendText(LogStatement("Test message could not be sent to server"));
+            }
+        }
+
+        private string LogStatement(string logText)
+        {
+            return "[" + DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToLongTimeString() + "] " + logText + Environment.NewLine;
+        }
     }
 }
