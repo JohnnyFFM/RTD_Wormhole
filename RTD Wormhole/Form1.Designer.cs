@@ -72,6 +72,7 @@
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.imageList = new System.Windows.Forms.ImageList(this.components);
+            this.button1 = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
             this.toolStrip.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -179,7 +180,6 @@
             // 
             this.tb_srv_ip.Location = new System.Drawing.Point(78, 53);
             this.tb_srv_ip.Name = "tb_srv_ip";
-            this.tb_srv_ip.ReadOnly = true;
             this.tb_srv_ip.Size = new System.Drawing.Size(100, 20);
             this.tb_srv_ip.TabIndex = 3;
             this.tb_srv_ip.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
@@ -318,6 +318,7 @@
             // 
             // groupBox3
             // 
+            this.groupBox3.Controls.Add(this.button1);
             this.groupBox3.Controls.Add(this.label14);
             this.groupBox3.Controls.Add(this.pictureBox5);
             this.groupBox3.Controls.Add(this.label13);
@@ -527,6 +528,16 @@
             this.imageList.Images.SetKeyName(1, "connecting.ico");
             this.imageList.Images.SetKeyName(2, "online.ico");
             // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(482, 95);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(82, 49);
+            this.button1.TabIndex = 16;
+            this.button1.Text = "Emmit Test Event";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -617,6 +628,7 @@
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.PictureBox server_rtd_status;
         private System.Windows.Forms.ToolStripButton btn_testConnection;
+        private System.Windows.Forms.Button button1;
     }
 }
 

@@ -1,6 +1,8 @@
 ﻿using System;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,6 +15,7 @@ namespace RTD_Wormhole
     {
         private readonly SynchronizationContext synchronizationContext;
         readonly RtdClient RTDclient;
+        private WatsonWsServer LinkServer;
         private WatsonWsClient LinkClient;
 
         public Form1()
@@ -61,44 +64,66 @@ namespace RTD_Wormhole
             if (!RTDclient.Connected)
             {
                 srv_status.Text = "Connecting to RTD server...";
+                AppendLog("Connecting to RTD server...");
                 server_rtd_status.Image = imageList.Images[1];
                 ConnectRTD();
             }
             else
             {
-                srv_status.Text = "Disconnecting RTD server...";
+                AppendLog("Disconnecting from RTD server...");
                 RTDclient.Disconnect();
                 server_rtd_status.Image = imageList.Images[0];
                 srv_status.Text = "RTD server disconnected.";
+                AppendLog("RTD server disconnected.");
             }
             // Start Server
-            srv_status.Text = "Starting Wormhole server...";
+            AppendLog("Starting Wormhole server...");
             // DEBUG: TODO Change from Localhost
-            WatsonWsServer server = new WatsonWsServer(tb_client_ip.Text, Decimal.ToInt32(ud_srv_port.Value), false);
-            server.ClientConnected += WSClientConnected;
+            LinkServer = new WatsonWsServer(tb_client_ip.Text, Decimal.ToInt32(ud_srv_port.Value), false);
+            LinkServer.ClientConnected += WSClientConnected;
             //server.ClientDisconnected += ClientDisconnected;
-            server.MessageReceived += MessageReceived;
-            server.Start();
+            LinkServer.MessageReceived += MessageReceived;
+            LinkServer.Start();
             server_ws_status.Image = imageList.Images[2];
             server_link_status.Image = imageList.Images[1];
             srv_status.Text = "Wormhole server running. Awaiting connection...";
+            AppendLog("Wormhole server running. Awaiting connection...");
 
         }
 
-        static void MessageReceived(object sender, MessageReceivedEventArgs args)
+        void MessageReceived(object sender, MessageReceivedEventArgs args)
         {
-            Console.WriteLine("Message received from " + args.IpPort + ": " + Encoding.UTF8.GetString(args.Data));
+            Object data = ByteArrayToObject(args.Data);
+            if (data is string)
+                AppendLog("Text message received from " + args.IpPort + ": " + data, false);
+            else if (data is object[])
+            {
+                AppendLog("Array object", false);
+                // this is where the RTD-message should be handled
+            }
+            else
+                AppendLog("Unknown object");
         }
 
         private void btn_client_Click(object sender, EventArgs e)
         {
             LinkClient = new WatsonWsClient(tb_client_ip.Text, Decimal.ToInt32(ud_client_port.Value), false);
-            //client.ServerConnected += ServerConnected;
-            //client.ServerDisconnected += ServerDisconnected;
+            LinkClient.ServerConnected += ServerConnected;
+            LinkClient.ServerDisconnected += ServerDisconnected;
             //client.MessageReceived += MessageReceived;
             LinkClient.Start();
 
             client_ws_status.Image = imageList.Images[2];
+        }
+
+        void ServerConnected(object sender, EventArgs args)
+        {
+            AppendLog("Server connected");
+        }
+
+        void ServerDisconnected(object sender, EventArgs args)
+        {
+            AppendLog("Server disconnected");
         }
 
         void WSClientConnected(object sender, ClientConnectedEventArgs args)
@@ -115,6 +140,7 @@ namespace RTD_Wormhole
             {
                 server_rtd_status.Image = imageList.Images[1];
                 srv_status.Text = "RTD Heartbeat lost. Reconnecting...";
+                AppendLog("RTD Heartbeat lost. Reconnecting...");
                 System.Threading.Tasks.Task.Delay(10 * 1000).ContinueWith((_) => PostUI(() =>
             { ConnectRTD(); }));
             });
@@ -127,11 +153,13 @@ namespace RTD_Wormhole
                 if (ret)
                 {
                     srv_status.Text = "RTD Connected.";
-                    server_rtd_status.Image = imageList.Images[2];
+                AppendLog("RTD Connected.");
+                server_rtd_status.Image = imageList.Images[2];
                 }
                 else
                 {
                     srv_status.Text = "RTD Connection failed.";
+                    AppendLog("RTD Connection failed.");
                     server_rtd_status.Image = imageList.Images[1];
                 }
 
@@ -143,6 +171,7 @@ namespace RTD_Wormhole
             {
                 server_rtd_status.Image = imageList.Images[0];
                 srv_status.Text = "RTD disconnected.";
+                AppendLog("RTD disconnected.");
             });
         }
 
@@ -150,6 +179,8 @@ namespace RTD_Wormhole
         {
             // push through warmhole until success 
             // nothing bad can happen if the same message is repeated
+            LinkClient.SendAsync(e.Data);
+            AppendLog("Client recieved data event");
         }
 
         /// <summary>
@@ -159,7 +190,7 @@ namespace RTD_Wormhole
         {
             if (LinkClient != null)
             {
-                return await LinkClient.SendAsync("Test message from client");
+                return await LinkClient.SendAsync(ObjectToByteArray("Test message from client"));
             }
             else
             {
@@ -169,23 +200,71 @@ namespace RTD_Wormhole
 
         private async void toolStripButton1_Click(object sender, EventArgs e)
         {
-            textBox1.AppendText(LogStatement("Sending test message to server"));
+            AppendLog("Sending test message to server " + tb_client_ip.Text + ":" + Decimal.ToInt32(ud_srv_port.Value));
             btn_testConnection.Image = global::RTD_Wormhole.Properties.Resources.disconnected;
             Task<bool> testCall = TestConnectionAsync();
             bool testSuccess = await testCall;
             if (testSuccess)
             {
-                textBox1.AppendText(LogStatement("Test message was successfully received by server"));
+                AppendLog("Test message was successfully received by server");
                 btn_testConnection.Image = global::RTD_Wormhole.Properties.Resources.connected;
             } else
             {
-                textBox1.AppendText(LogStatement("Test message could not be sent to server"));
+                AppendLog("Test message could not be sent to server");
             }
         }
 
-        private string LogStatement(string logText)
+        private static string LogStatement(string logText)
         {
             return "[" + DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToLongTimeString() + "] " + logText + Environment.NewLine;
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            byte[] byteData = ObjectToByteArray("test byte message");
+            DataEventArgs deArgs = new DataEventArgs(1, byteData);
+            Client_OnData(sender, deArgs);
+        }
+
+        // Convert a byte array to an Object
+        public static Object ByteArrayToObject(byte[] arrBytes)
+        {
+            using (var memStream = new MemoryStream())
+            {
+                var binForm = new BinaryFormatter();
+                memStream.Write(arrBytes, 0, arrBytes.Length);
+                memStream.Seek(0, SeekOrigin.Begin);
+                var obj = binForm.Deserialize(memStream);
+                return obj;
+            }
+        }
+
+        // Convert an object to a byte array
+        public static byte[] ObjectToByteArray(Object obj)
+        {
+            BinaryFormatter bf = new BinaryFormatter();
+            using (var ms = new MemoryStream())
+            {
+                bf.Serialize(ms, obj);
+                return ms.ToArray();
+            }
+        }
+
+        public void AppendLog(string logText, bool debug = false)
+        {
+            if (debug)
+                return;
+            if (this.InvokeRequired)
+            {
+                this.Invoke(
+                    new MethodInvoker(
+                    delegate () { AppendLog(logText); }));
+            }
+            else
+            {
+                DateTime timestamp = DateTime.Now;
+                textBox1.AppendText(LogStatement(logText));
+            }
         }
     }
 }

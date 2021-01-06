@@ -2,6 +2,8 @@
 using System.Threading;
 using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.IO;
 
 namespace RTD_Wormhole
 {
@@ -95,10 +97,10 @@ Guid("EC0E6191-DB51-11D3-8F3E-00C04F3651B8")]
 
     public class DataEventArgs : EventArgs
     {
-        public object[,] Data { get; set; }
+        public byte[] Data { get; set; }
         public int Count { get; set; }
 
-        public DataEventArgs(int count, object[,] data)
+        public DataEventArgs(int count, byte[] data)
         {
             this.Data = data;
             this.Count = count;
@@ -145,10 +147,11 @@ Guid("EC0E6191-DB51-11D3-8F3E-00C04F3651B8")]
             // receive data from server
             int topicCount = 0;
             object[,] data = rtdServer.RefreshData(ref topicCount);
+            byte[] byteArray = ObjectToByteArray(data);
             if (topicCount > 0)
             {
                 // pass data to handler
-                OnData(new DataEventArgs(topicCount, data));
+                OnData(new DataEventArgs(topicCount, byteArray));
             }
         }
 
@@ -250,6 +253,30 @@ Guid("EC0E6191-DB51-11D3-8F3E-00C04F3651B8")]
             if (connected)
             {
                 rtdServer.DisconnectData(topicID);
+            }
+        }
+
+        // Convert an object to a byte array
+        public static byte[] ObjectToByteArray(Object obj)
+        {
+            BinaryFormatter bf = new BinaryFormatter();
+            using (var ms = new MemoryStream())
+            {
+                bf.Serialize(ms, obj);
+                return ms.ToArray();
+            }
+        }
+
+        // Convert a byte array to an Object
+        public static Object ByteArrayToObject(byte[] arrBytes)
+        {
+            using (var memStream = new MemoryStream())
+            {
+                var binForm = new BinaryFormatter();
+                memStream.Write(arrBytes, 0, arrBytes.Length);
+                memStream.Seek(0, SeekOrigin.Begin);
+                var obj = binForm.Deserialize(memStream);
+                return obj;
             }
         }
     }
