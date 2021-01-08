@@ -43,8 +43,8 @@
             this.label2 = new System.Windows.Forms.Label();
             this.tb_srv_progid = new System.Windows.Forms.TextBox();
             this.ud_srv_port = new System.Windows.Forms.NumericUpDown();
-            this.label1 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.tb_client_progid = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
@@ -53,6 +53,7 @@
             this.ud_client_port = new System.Windows.Forms.NumericUpDown();
             this.label3 = new System.Windows.Forms.Label();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.button1 = new System.Windows.Forms.Button();
             this.label14 = new System.Windows.Forms.Label();
             this.pictureBox5 = new System.Windows.Forms.PictureBox();
             this.label13 = new System.Windows.Forms.Label();
@@ -72,7 +73,6 @@
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.imageList = new System.Windows.Forms.ImageList(this.components);
-            this.button1 = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
             this.toolStrip.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -167,8 +167,8 @@
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Controls.Add(this.tb_srv_progid);
             this.groupBox1.Controls.Add(this.ud_srv_port);
-            this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Controls.Add(this.label6);
+            this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Location = new System.Drawing.Point(12, 52);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(368, 82);
@@ -178,16 +178,17 @@
             // 
             // tb_srv_ip
             // 
-            this.tb_srv_ip.Location = new System.Drawing.Point(78, 53);
+            this.tb_srv_ip.Location = new System.Drawing.Point(78, 24);
             this.tb_srv_ip.Name = "tb_srv_ip";
             this.tb_srv_ip.Size = new System.Drawing.Size(100, 20);
             this.tb_srv_ip.TabIndex = 3;
+            this.tb_srv_ip.Text = "0.0.0.0";
             this.tb_srv_ip.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(6, 56);
+            this.label2.Location = new System.Drawing.Point(7, 26);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(45, 13);
             this.label2.TabIndex = 2;
@@ -195,7 +196,7 @@
             // 
             // tb_srv_progid
             // 
-            this.tb_srv_progid.Location = new System.Drawing.Point(78, 24);
+            this.tb_srv_progid.Location = new System.Drawing.Point(78, 53);
             this.tb_srv_progid.Name = "tb_srv_progid";
             this.tb_srv_progid.Size = new System.Drawing.Size(100, 20);
             this.tb_srv_progid.TabIndex = 1;
@@ -204,7 +205,7 @@
             // 
             // ud_srv_port
             // 
-            this.ud_srv_port.Location = new System.Drawing.Point(216, 54);
+            this.ud_srv_port.Location = new System.Drawing.Point(216, 25);
             this.ud_srv_port.Maximum = new decimal(new int[] {
             65000,
             0,
@@ -220,23 +221,23 @@
             0,
             0});
             // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(6, 27);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(66, 13);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "RTD ProgID";
-            // 
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(184, 56);
+            this.label6.Location = new System.Drawing.Point(184, 26);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(26, 13);
             this.label6.TabIndex = 4;
             this.label6.Text = "Port";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(7, 56);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(66, 13);
+            this.label1.TabIndex = 0;
+            this.label1.Text = "RTD ProgID";
             // 
             // groupBox2
             // 
@@ -341,6 +342,16 @@
             this.groupBox3.TabIndex = 4;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Status";
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(482, 95);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(82, 49);
+            this.button1.TabIndex = 16;
+            this.button1.Text = "Emmit Test Event";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // label14
             // 
@@ -527,16 +538,6 @@
             this.imageList.Images.SetKeyName(0, "offline.ico");
             this.imageList.Images.SetKeyName(1, "connecting.ico");
             this.imageList.Images.SetKeyName(2, "online.ico");
-            // 
-            // button1
-            // 
-            this.button1.Location = new System.Drawing.Point(482, 95);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(82, 49);
-            this.button1.TabIndex = 16;
-            this.button1.Text = "Emmit Test Event";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // Form1
             // 

@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using WatsonWebsocket;
+using Fleck;
 
 namespace RTD_Wormhole
 {
@@ -15,7 +16,7 @@ namespace RTD_Wormhole
     {
         private readonly SynchronizationContext synchronizationContext;
         readonly RtdClient RTDclient;
-        private WatsonWsServer LinkServer;
+        private WebSocketServer LinkServer;
         private WatsonWsClient LinkClient;
 
         public Form1()
@@ -23,7 +24,7 @@ namespace RTD_Wormhole
             InitializeComponent();
             toolStrip.ImageList = imageList;
             synchronizationContext = SynchronizationContext.Current;
-            tb_srv_ip.Text = GetLocalIp();
+            // tb_srv_ip.Text = GetLocalIp();
             RTDclient = new RtdClient();
             RTDclient.EDisconnect += new EventHandler(Client_OnDisconnect);
             RTDclient.HeartBeatLost += new EventHandler(Client_OnHeartBeatLost);
@@ -79,16 +80,31 @@ namespace RTD_Wormhole
             // Start Server
             AppendLog("Starting Wormhole server...");
             // DEBUG: TODO Change from Localhost
-            LinkServer = new WatsonWsServer(tb_client_ip.Text, Decimal.ToInt32(ud_srv_port.Value), false);
-            LinkServer.ClientConnected += WSClientConnected;
-            //server.ClientDisconnected += ClientDisconnected;
-            LinkServer.MessageReceived += MessageReceived;
-            LinkServer.Start();
+            LinkServer = startWebSocketServer(tb_srv_ip.Text, Decimal.ToInt32(ud_srv_port.Value));
             server_ws_status.Image = imageList.Images[2];
             server_link_status.Image = imageList.Images[1];
-            srv_status.Text = "Wormhole server running. Awaiting connection...";
             AppendLog("Wormhole server running. Awaiting connection...");
+        }
 
+        private WebSocketServer startWebSocketServer(string ip, int port)
+        {
+            var server = new WebSocketServer("ws://" + ip + ":" + port, true);
+            server.Start(socket =>
+                {
+                    socket.OnOpen = () =>
+                    {
+                        ChangeWsServerStatus("server_link_status", 2);
+                        AppendLog("Wormhole Websocket server running. Awaiting connection...");
+                    };
+                    socket.OnClose = () =>
+                    {
+                        ChangeWsServerStatus("server_link_status", 1);
+                        AppendLog("Websocket server stopped");
+                    };
+                    socket.OnMessage = message => socket.Send(message);
+                });
+            
+            return server;
         }
 
         void MessageReceived(object sender, MessageReceivedEventArgs args)
@@ -112,7 +128,6 @@ namespace RTD_Wormhole
             LinkClient.ServerDisconnected += ServerDisconnected;
             //client.MessageReceived += MessageReceived;
             LinkClient.Start();
-
             client_ws_status.Image = imageList.Images[2];
         }
 
@@ -247,6 +262,35 @@ namespace RTD_Wormhole
             {
                 bf.Serialize(ms, obj);
                 return ms.ToArray();
+            }
+        }
+
+        public void ChangeWsServerStatus(string target, int status, bool debug = false)
+        {
+            if (debug)
+                return;
+            if (this.InvokeRequired)
+            {
+                this.Invoke(
+                    new MethodInvoker(
+                    delegate ()
+                    {
+                        switch (target)
+                        {
+                            case "server_link_status" :
+                                server_link_status.Image = imageList.Images[status];
+                                break;
+                        }
+                    }));
+            }
+            else
+            {
+                switch (target)
+                {
+                    case "server_link_status":
+                        server_link_status.Image = imageList.Images[status];
+                        break;
+                }
             }
         }
 
