@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -7,29 +8,29 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using WatsonWebsocket;
-using Fleck;
+using Fleck; // ws server
+using WatsonWebsocket; // wsclient
+
 
 namespace RTD_Wormhole
 {
     public partial class Form1 : Form
     {
         private readonly SynchronizationContext synchronizationContext;
-        readonly RtdClient RTDclient;
         private WebSocketServer LinkServer;
         private WatsonWsClient LinkClient;
+        private readonly List<IWebSocketConnection> Connections;
+        bool clientconnecting = false;
+        //TODO private readonly List<RtdClient> RTDclients;
 
         public Form1()
         {
             InitializeComponent();
             toolStrip.ImageList = imageList;
             synchronizationContext = SynchronizationContext.Current;
-            // tb_srv_ip.Text = GetLocalIp();
-            RTDclient = new RtdClient();
-            RTDclient.EDisconnect += new EventHandler(Client_OnDisconnect);
-            RTDclient.HeartBeatLost += new EventHandler(Client_OnHeartBeatLost);
-            RTDclient.Data += new EventHandler<DataEventArgs>(Client_OnData);
-
+            tb_srv_ip.Text = GetLocalIp();
+            tb_client_ip.Text = GetLocalIp();
+            Connections = new List<IWebSocketConnection>();
         }
 
         /// <summary>
@@ -50,166 +51,161 @@ namespace RTD_Wormhole
                 IPEndPoint endPoint = socket.LocalEndPoint as IPEndPoint;
                 return endPoint.Address.ToString();
             }
-
         }
 
-        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        private void ExitToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            // shutdown server
+            // TODO: shutdown server, client and all active connections
             Application.Exit();
         }
 
-        private void btn_server_Click(object sender, EventArgs e)
+        // LinkServer
+        private void Btn_server_Click(object sender, EventArgs e)
         {
-            // Connect RTD
-            if (!RTDclient.Connected)
+            // start/stop websocket server
+            if (LinkServer != null)
             {
-                srv_status.Text = "Connecting to RTD server...";
-                AppendLog("Connecting to RTD server...");
-                server_rtd_status.Image = imageList.Images[1];
-                ConnectRTD();
+                AppendLog("Stopping Wormhole server...");
+                foreach (IWebSocketConnection connection in Connections.ToArray()) connection.Close();
+                server_link_status.Image = imageList.Images[0];
+                LinkServer.Dispose();
+                LinkServer = null;
+                btn_server.Image = imageList.Images[0];
+                server_ws_status.Image = imageList.Images[0];             
+                AppendLog("Wormhole server down.");
+            } else {
+                AppendLog("Starting Wormhole server...");
+                LinkServer = StartWebSocketServer(tb_srv_ip.Text, Decimal.ToInt32(ud_srv_port.Value));
+                btn_server.Image = imageList.Images[2];
+                server_ws_status.Image = imageList.Images[2];
+                server_link_status.Image = imageList.Images[1];
+                AppendLog("Wormhole server running. Awaiting connections...");
             }
-            else
-            {
-                AppendLog("Disconnecting from RTD server...");
-                RTDclient.Disconnect();
-                server_rtd_status.Image = imageList.Images[0];
-                srv_status.Text = "RTD server disconnected.";
-                AppendLog("RTD server disconnected.");
-            }
-            // Start Server
-            AppendLog("Starting Wormhole server...");
-            // DEBUG: TODO Change from Localhost
-            LinkServer = startWebSocketServer(tb_srv_ip.Text, Decimal.ToInt32(ud_srv_port.Value));
-            server_ws_status.Image = imageList.Images[2];
-            server_link_status.Image = imageList.Images[1];
-            AppendLog("Wormhole server running. Awaiting connection...");
         }
 
-        private WebSocketServer startWebSocketServer(string ip, int port)
+        private WebSocketServer StartWebSocketServer(string ip, int port)
         {
-            var server = new WebSocketServer("ws://" + ip + ":" + port, true);
+            WebSocketServer server = new WebSocketServer("ws://" + ip + ":" + port, true);
             server.Start(socket =>
                 {
-                    socket.OnOpen = () =>
-                    {
-                        ChangeWsServerStatus("server_link_status", 2);
-                        AppendLog("Wormhole Websocket server running. Awaiting connection...");
-                    };
-                    socket.OnClose = () =>
-                    {
-                        ChangeWsServerStatus("server_link_status", 1);
-                        AppendLog("Websocket server stopped");
-                    };
-                    socket.OnMessage = message =>
-                    {
-                        socket.Send(message);
-                        AppendLog("Websocket server received message");
-                    };
+                    socket.OnOpen = () => ServerOnOpen(socket);
+                    socket.OnClose = () => ServerOnClose(socket);
+                    socket.OnMessage = message => ServerOnMessage(socket, message);
+                    socket.OnBinary = data => ServerOnBinary(socket, data);
                 });
-            
             return server;
         }
 
-        void messageTest()
+        private void ServerOnOpen(IWebSocketConnection socket)
         {
-            // IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
-            // IPAddress ipAddress = ipHostInfo.AddressList[0];
-
-            // IPEndPoint ipe = new IPEndPoint(ipAddress, 7777);
-
-            Socket s = new Socket(AddressFamily.InterNetwork,
-                SocketType.Stream, ProtocolType.Tcp);
-
-            Console.WriteLine("Starting client connection");
-            try
-            {
-                // s.Connect(ipe);
-                s.Connect(tb_client_ip.Text, Decimal.ToInt32(ud_client_port.Value));
-                Console.WriteLine("Client connection established");
-
-            }
-            catch (ArgumentNullException ae)
-            {
-                Console.WriteLine("ArgumentNullException : {0}", ae.ToString());
-            }
-            catch (SocketException se)
-            {
-                Console.WriteLine("SocketException : {0}", se.ToString());
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Unexpected exception : {0}", e.ToString());
-            }
-
-            byte[] msg = System.Text.Encoding.ASCII.GetBytes("This is a test");
-            int bytesSent = s.Send(msg);
-            Console.WriteLine("Message sent");
-
-            byte[] bytes = new byte[1024];
-            int bytesRec = s.Receive(bytes);
-            Console.WriteLine("Echoed text = {0}",
-                System.Text.Encoding.ASCII.GetString(bytes, 0, bytesRec));
-
-            s.Shutdown(SocketShutdown.Both);
-            s.Close();
-
+            Connections.Add(socket);
+            ChangeWebSocketStatus("server_link_status", 2);
+            UpdateConnections(Connections.Count);
+            AppendLog("Client connected: " + socket.ConnectionInfo.ToString());
+            AppendLog("Starting RTD for client: " + socket.ConnectionInfo.ToString());
+            
+            // TODO client needs link to socket
+            RtdClient client = new RtdClient();
+            client.EDisconnect += new EventHandler(Client_OnDisconnect);
+            client.HeartBeatLost += new EventHandler(Client_OnHeartBeatLost);
+            client.Data += new EventHandler<DataEventArgs>(Client_OnData);
+            // TODO connect client, put in list
         }
 
-        void MessageReceived(object sender, MessageReceivedEventArgs args)
+        private void ServerOnClose(IWebSocketConnection socket)
         {
-            Object data = ByteArrayToObject(args.Data);
-            if (data is string)
-                AppendLog("Text message received from " + args.IpPort + ": " + data, false);
-            else if (data is object[])
+            Connections.Remove(socket);
+            UpdateConnections(Connections.Count);
+            if (Connections.Count == 0) ChangeWebSocketStatus("server_link_status", 1);
+            AppendLog("Client disconnected: " + socket.ConnectionInfo.ToString());
+            // TODO disconnect client
+        }
+
+        private void ServerOnMessage(IWebSocketConnection socket, string message)
+        {
+            AppendLog("Websocket server received text message. Echo...");
+            socket.Send(message);
+        }
+
+        private void ServerOnBinary(IWebSocketConnection socket, byte[] data)
+        {
+            AppendLog("Websocket server received binary message. Echo...");
+            socket.Send(data);
+        }
+
+        // LinkClient
+        private void Btn_client_Click(object sender, EventArgs e)
+        {
+            // allow only one client
+            if (clientconnecting) return;
+            if (LinkClient != null)
             {
-                AppendLog("Array object", false);
+                AppendLog("Stopping Wormhole client...");
+                if (LinkClient.Connected)
+                {
+                    LinkClient.Stop();
+                }
+                else
+                {
+                    LinkClient.Dispose();
+                    LinkClient = null;
+                }
+                ChangeWebSocketStatus("client_link_status", 0);
+            } else
+            {
+                AppendLog("Starting Wormhole client...");
+                clientconnecting = true;
+                LinkClient = new WatsonWsClient(tb_client_ip.Text, Decimal.ToInt32(ud_client_port.Value), false);
+                LinkClient.ServerConnected += LinkClientConnected;
+                LinkClient.ServerDisconnected += LinkClientDisconnected;
+                LinkClient.MessageReceived += LinkClientMessageReceived;
+                ChangeWebSocketStatus("client_link_status", 1);
+                LinkClient.Start();
+            }
+        }
+        void LinkClientConnected(object sender, EventArgs args)
+        {
+            ChangeWebSocketStatus("client_link_status", 2);
+            AppendLog("Client connected to server.");
+            clientconnecting = false;
+        }
+
+        void LinkClientDisconnected(object sender, EventArgs args)
+        {
+            LinkClient.Dispose();
+            LinkClient = null;
+            ChangeWebSocketStatus("client_link_status", 0);
+            AppendLog("Client not connected.");
+            clientconnecting = false;
+        }
+        void LinkClientMessageReceived(object sender, MessageReceivedEventArgs args)
+        {
+           
+            if (args.MessageType == System.Net.WebSockets.WebSocketMessageType.Text)
+                AppendLog("Client received text message from " + args.IpPort + ": " + Encoding.UTF8.GetString(args.Data), false);
+            else if (args.MessageType == System.Net.WebSockets.WebSocketMessageType.Binary)
+            {
+                Object data = ByteArrayToObject(args.Data); //TODO evt try falls es doch kein object[] ist
+                AppendLog("Client received object[] from " + args.IpPort + ": " + data, false);
                 // this is where the RTD-message should be handled
             }
             else
-                AppendLog("Unknown object");
+                AppendLog("Client received unknown message type " + args.IpPort + ": " + args.MessageType.ToString());
         }
 
-        private void btn_client_Click(object sender, EventArgs e)
-        {
-            LinkClient = new WatsonWsClient(tb_client_ip.Text, Decimal.ToInt32(ud_client_port.Value), false);
-            LinkClient.ServerConnected += ServerConnected;
-            LinkClient.ServerDisconnected += ServerDisconnected;
-            //client.MessageReceived += MessageReceived;
-            LinkClient.Start();
-            client_ws_status.Image = imageList.Images[2];
-        }
-
-        void ServerConnected(object sender, EventArgs args)
-        {
-            AppendLog("Server connected");
-        }
-
-        void ServerDisconnected(object sender, EventArgs args)
-        {
-            AppendLog("Server disconnected");
-        }
-
-        void WSClientConnected(object sender, ClientConnectedEventArgs args)
-        {
-            PostUI(() =>
-            {
-                server_link_status.Image = imageList.Images[2];
-            });
-        }
+        // RTD Client
 
         void Client_OnHeartBeatLost(object sender, EventArgs e)
         {
             PostUI(() =>
             {
                 server_rtd_status.Image = imageList.Images[1];
-                srv_status.Text = "RTD Heartbeat lost. Reconnecting...";
                 AppendLog("RTD Heartbeat lost. Reconnecting...");
                 System.Threading.Tasks.Task.Delay(10 * 1000).ContinueWith((_) => PostUI(() =>
-            { ConnectRTD(); }));
+            { /*ConnectRTD();*/ }));
             });
         }
-
+        /*
         private void ConnectRTD()
         {
             bool ret = RTDclient.Connect("xrtd.xrtd", -1);
@@ -227,14 +223,13 @@ namespace RTD_Wormhole
                     server_rtd_status.Image = imageList.Images[1];
                 }
 
-        }
+        }*/
 
         void Client_OnDisconnect(object sender, EventArgs e)
         {
             PostUI(() =>
             {
                 server_rtd_status.Image = imageList.Images[0];
-                srv_status.Text = "RTD disconnected.";
                 AppendLog("RTD disconnected.");
             });
         }
@@ -252,9 +247,9 @@ namespace RTD_Wormhole
         /// </summary>
         private async Task<bool> TestConnectionAsync()
         {
-            if (LinkClient != null)
+            if (LinkClient != null && LinkClient.Connected)
             {
-                return await LinkClient.SendAsync(ObjectToByteArray("Test message from client"));
+                return await LinkClient.SendAsync(ObjectToByteArray("Client says: Hi Server!"));
             }
             else
             {
@@ -262,15 +257,15 @@ namespace RTD_Wormhole
             }
         }
 
-        private async void toolStripButton1_Click(object sender, EventArgs e)
+        private async void ToolStripButton1_Click(object sender, EventArgs e)
         {
-            AppendLog("Sending test message to server " + tb_client_ip.Text + ":" + Decimal.ToInt32(ud_srv_port.Value));
+            AppendLog("Sending test message to server " + tb_client_ip.Text + ":" + Decimal.ToInt32(ud_client_port.Value));
             btn_testConnection.Image = global::RTD_Wormhole.Properties.Resources.disconnected;
             Task<bool> testCall = TestConnectionAsync();
             bool testSuccess = await testCall;
             if (testSuccess)
             {
-                AppendLog("Test message was successfully received by server");
+                AppendLog("Test message was successfully send to server");
                 btn_testConnection.Image = global::RTD_Wormhole.Properties.Resources.connected;
             } else
             {
@@ -281,13 +276,6 @@ namespace RTD_Wormhole
         private static string LogStatement(string logText)
         {
             return "[" + DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToLongTimeString() + "] " + logText + Environment.NewLine;
-        }
-
-        private void button1_Click(object sender, EventArgs e)
-        {
-            byte[] byteData = ObjectToByteArray("test byte message");
-            DataEventArgs deArgs = new DataEventArgs(1, byteData);
-            Client_OnData(sender, deArgs);
         }
 
         // Convert a byte array to an Object
@@ -314,7 +302,7 @@ namespace RTD_Wormhole
             }
         }
 
-        public void ChangeWsServerStatus(string target, int status, bool debug = false)
+        public void ChangeWebSocketStatus(string target, int status, bool debug = false)
         {
             if (debug)
                 return;
@@ -322,15 +310,7 @@ namespace RTD_Wormhole
             {
                 this.Invoke(
                     new MethodInvoker(
-                    delegate ()
-                    {
-                        switch (target)
-                        {
-                            case "server_link_status" :
-                                server_link_status.Image = imageList.Images[status];
-                                break;
-                        }
-                    }));
+                     delegate () { ChangeWebSocketStatus(target, status, debug); }));
             }
             else
             {
@@ -339,7 +319,25 @@ namespace RTD_Wormhole
                     case "server_link_status":
                         server_link_status.Image = imageList.Images[status];
                         break;
+                    case "client_link_status":
+                        client_ws_status.Image = imageList.Images[status];
+                        btn_client.Image = imageList.Images[status];
+                        break;
                 }
+            }
+        }
+
+        public void UpdateConnections(int count)
+        {
+            if (this.InvokeRequired)
+            {
+                this.Invoke(
+                    new MethodInvoker(
+                    delegate () { UpdateConnections(count); }));
+            }
+            else
+            {
+                lbl_conn.Text = "Link (" + count.ToString() + " Connections)";
             }
         }
 
@@ -360,9 +358,5 @@ namespace RTD_Wormhole
             }
         }
 
-        private void button2_Click(object sender, EventArgs e)
-        {
-            messageTest();
-        }
     }
 }

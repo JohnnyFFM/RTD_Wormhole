@@ -53,28 +53,23 @@
             this.ud_client_port = new System.Windows.Forms.NumericUpDown();
             this.label3 = new System.Windows.Forms.Label();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.button2 = new System.Windows.Forms.Button();
-            this.button1 = new System.Windows.Forms.Button();
             this.label14 = new System.Windows.Forms.Label();
             this.pictureBox5 = new System.Windows.Forms.PictureBox();
             this.label13 = new System.Windows.Forms.Label();
             this.pictureBox4 = new System.Windows.Forms.PictureBox();
             this.label12 = new System.Windows.Forms.Label();
             this.client_ws_status = new System.Windows.Forms.PictureBox();
-            this.label11 = new System.Windows.Forms.Label();
+            this.lbl_conn = new System.Windows.Forms.Label();
             this.server_link_status = new System.Windows.Forms.PictureBox();
             this.label10 = new System.Windows.Forms.Label();
             this.server_ws_status = new System.Windows.Forms.PictureBox();
             this.label9 = new System.Windows.Forms.Label();
             this.server_rtd_status = new System.Windows.Forms.PictureBox();
-            this.client_status = new System.Windows.Forms.Label();
-            this.srv_status = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.imageList = new System.Windows.Forms.ImageList(this.components);
-            this.label15 = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
             this.toolStrip.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -114,7 +109,7 @@
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
             this.exitToolStripMenuItem.Size = new System.Drawing.Size(93, 22);
             this.exitToolStripMenuItem.Text = "&Exit";
-            this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
+            this.exitToolStripMenuItem.Click += new System.EventHandler(this.ExitToolStripMenuItem_Click);
             // 
             // statusStrip1
             // 
@@ -143,7 +138,7 @@
             this.btn_server.Name = "btn_server";
             this.btn_server.Size = new System.Drawing.Size(59, 22);
             this.btn_server.Text = "Server";
-            this.btn_server.Click += new System.EventHandler(this.btn_server_Click);
+            this.btn_server.Click += new System.EventHandler(this.Btn_server_Click);
             // 
             // btn_client
             // 
@@ -152,7 +147,7 @@
             this.btn_client.Name = "btn_client";
             this.btn_client.Size = new System.Drawing.Size(58, 22);
             this.btn_client.Text = "Client";
-            this.btn_client.Click += new System.EventHandler(this.btn_client_Click);
+            this.btn_client.Click += new System.EventHandler(this.Btn_client_Click);
             // 
             // btn_testConnection
             // 
@@ -161,7 +156,7 @@
             this.btn_testConnection.Name = "btn_testConnection";
             this.btn_testConnection.Size = new System.Drawing.Size(112, 22);
             this.btn_testConnection.Text = "Test Connection";
-            this.btn_testConnection.Click += new System.EventHandler(this.toolStripButton1_Click);
+            this.btn_testConnection.Click += new System.EventHandler(this.ToolStripButton1_Click);
             // 
             // groupBox1
             // 
@@ -321,23 +316,18 @@
             // 
             // groupBox3
             // 
-            this.groupBox3.Controls.Add(this.label15);
-            this.groupBox3.Controls.Add(this.button2);
-            this.groupBox3.Controls.Add(this.button1);
             this.groupBox3.Controls.Add(this.label14);
             this.groupBox3.Controls.Add(this.pictureBox5);
             this.groupBox3.Controls.Add(this.label13);
             this.groupBox3.Controls.Add(this.pictureBox4);
             this.groupBox3.Controls.Add(this.label12);
             this.groupBox3.Controls.Add(this.client_ws_status);
-            this.groupBox3.Controls.Add(this.label11);
+            this.groupBox3.Controls.Add(this.lbl_conn);
             this.groupBox3.Controls.Add(this.server_link_status);
             this.groupBox3.Controls.Add(this.label10);
             this.groupBox3.Controls.Add(this.server_ws_status);
             this.groupBox3.Controls.Add(this.label9);
             this.groupBox3.Controls.Add(this.server_rtd_status);
-            this.groupBox3.Controls.Add(this.client_status);
-            this.groupBox3.Controls.Add(this.srv_status);
             this.groupBox3.Controls.Add(this.label8);
             this.groupBox3.Controls.Add(this.label7);
             this.groupBox3.Location = new System.Drawing.Point(12, 140);
@@ -346,26 +336,6 @@
             this.groupBox3.TabIndex = 4;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Status";
-            // 
-            // button2
-            // 
-            this.button2.Location = new System.Drawing.Point(617, 29);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(91, 26);
-            this.button2.TabIndex = 17;
-            this.button2.Text = "Send message";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
-            // 
-            // button1
-            // 
-            this.button1.Location = new System.Drawing.Point(654, 151);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(82, 49);
-            this.button1.TabIndex = 16;
-            this.button1.Text = "Emmit Test Event (old)";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // label14
             // 
@@ -427,20 +397,20 @@
             this.client_ws_status.TabIndex = 10;
             this.client_ws_status.TabStop = false;
             // 
-            // label11
+            // lbl_conn
             // 
-            this.label11.AutoSize = true;
-            this.label11.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label11.Location = new System.Drawing.Point(343, 65);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(36, 16);
-            this.label11.TabIndex = 9;
-            this.label11.Text = "Link";
+            this.lbl_conn.AutoSize = true;
+            this.lbl_conn.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbl_conn.Location = new System.Drawing.Point(452, 65);
+            this.lbl_conn.Name = "lbl_conn";
+            this.lbl_conn.Size = new System.Drawing.Size(145, 16);
+            this.lbl_conn.TabIndex = 9;
+            this.lbl_conn.Text = "Link (0 connections)";
             // 
             // server_link_status
             // 
             this.server_link_status.Image = ((System.Drawing.Image)(resources.GetObject("server_link_status.Image")));
-            this.server_link_status.Location = new System.Drawing.Point(321, 65);
+            this.server_link_status.Location = new System.Drawing.Point(430, 65);
             this.server_link_status.Name = "server_link_status";
             this.server_link_status.Size = new System.Drawing.Size(16, 16);
             this.server_link_status.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
@@ -451,7 +421,7 @@
             // 
             this.label10.AutoSize = true;
             this.label10.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label10.Location = new System.Drawing.Point(165, 65);
+            this.label10.Location = new System.Drawing.Point(274, 65);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(150, 16);
             this.label10.TabIndex = 7;
@@ -460,7 +430,7 @@
             // server_ws_status
             // 
             this.server_ws_status.Image = ((System.Drawing.Image)(resources.GetObject("server_ws_status.Image")));
-            this.server_ws_status.Location = new System.Drawing.Point(143, 65);
+            this.server_ws_status.Location = new System.Drawing.Point(252, 65);
             this.server_ws_status.Name = "server_ws_status";
             this.server_ws_status.Size = new System.Drawing.Size(16, 16);
             this.server_ws_status.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
@@ -473,9 +443,9 @@
             this.label9.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label9.Location = new System.Drawing.Point(38, 65);
             this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(99, 16);
+            this.label9.Size = new System.Drawing.Size(208, 16);
             this.label9.TabIndex = 5;
-            this.label9.Text = "RTDclient -->";
+            this.label9.Text = "RTDclient (0 connections) -->";
             // 
             // server_rtd_status
             // 
@@ -487,35 +457,15 @@
             this.server_rtd_status.TabIndex = 4;
             this.server_rtd_status.TabStop = false;
             // 
-            // client_status
-            // 
-            this.client_status.AutoSize = true;
-            this.client_status.Font = new System.Drawing.Font("Consolas", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.client_status.Location = new System.Drawing.Point(84, 105);
-            this.client_status.Name = "client_status";
-            this.client_status.Size = new System.Drawing.Size(117, 19);
-            this.client_status.TabIndex = 3;
-            this.client_status.Text = "Disconnected";
-            // 
-            // srv_status
-            // 
-            this.srv_status.AutoSize = true;
-            this.srv_status.Font = new System.Drawing.Font("Consolas", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.srv_status.Location = new System.Drawing.Point(84, 29);
-            this.srv_status.Name = "srv_status";
-            this.srv_status.Size = new System.Drawing.Size(117, 19);
-            this.srv_status.TabIndex = 2;
-            this.srv_status.Text = "Disconnected";
-            // 
             // label8
             // 
             this.label8.AutoSize = true;
             this.label8.Font = new System.Drawing.Font("Consolas", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label8.Location = new System.Drawing.Point(6, 105);
             this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(72, 19);
+            this.label8.Size = new System.Drawing.Size(63, 19);
             this.label8.TabIndex = 1;
-            this.label8.Text = "Client:";
+            this.label8.Text = "Client";
             // 
             // label7
             // 
@@ -523,9 +473,9 @@
             this.label7.Font = new System.Drawing.Font("Consolas", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label7.Location = new System.Drawing.Point(6, 29);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(72, 19);
+            this.label7.Size = new System.Drawing.Size(63, 19);
             this.label7.TabIndex = 0;
-            this.label7.Text = "Server:";
+            this.label7.Text = "Server";
             // 
             // groupBox4
             // 
@@ -552,15 +502,6 @@
             this.imageList.Images.SetKeyName(0, "offline.ico");
             this.imageList.Images.SetKeyName(1, "connecting.ico");
             this.imageList.Images.SetKeyName(2, "online.ico");
-            // 
-            // label15
-            // 
-            this.label15.AutoSize = true;
-            this.label15.Location = new System.Drawing.Point(380, 35);
-            this.label15.Name = "label15";
-            this.label15.Size = new System.Drawing.Size(231, 13);
-            this.label15.TabIndex = 18;
-            this.label15.Text = "Start client socket and send message to server:";
             // 
             // Form1
             // 
@@ -636,8 +577,6 @@
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
-        private System.Windows.Forms.Label client_status;
-        private System.Windows.Forms.Label srv_status;
         private System.Windows.Forms.ImageList imageList;
         private System.Windows.Forms.Label label14;
         private System.Windows.Forms.PictureBox pictureBox5;
@@ -645,16 +584,13 @@
         private System.Windows.Forms.PictureBox pictureBox4;
         private System.Windows.Forms.Label label12;
         private System.Windows.Forms.PictureBox client_ws_status;
-        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.Label lbl_conn;
         private System.Windows.Forms.PictureBox server_link_status;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.PictureBox server_ws_status;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.PictureBox server_rtd_status;
         private System.Windows.Forms.ToolStripButton btn_testConnection;
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.Label label15;
     }
 }
 
