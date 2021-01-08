@@ -101,10 +101,59 @@ namespace RTD_Wormhole
                         ChangeWsServerStatus("server_link_status", 1);
                         AppendLog("Websocket server stopped");
                     };
-                    socket.OnMessage = message => socket.Send(message);
+                    socket.OnMessage = message =>
+                    {
+                        socket.Send(message);
+                        AppendLog("Websocket server received message");
+                    };
                 });
             
             return server;
+        }
+
+        void messageTest()
+        {
+            // IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
+            // IPAddress ipAddress = ipHostInfo.AddressList[0];
+
+            // IPEndPoint ipe = new IPEndPoint(ipAddress, 7777);
+
+            Socket s = new Socket(AddressFamily.InterNetwork,
+                SocketType.Stream, ProtocolType.Tcp);
+
+            Console.WriteLine("Starting client connection");
+            try
+            {
+                // s.Connect(ipe);
+                s.Connect(tb_client_ip.Text, Decimal.ToInt32(ud_client_port.Value));
+                Console.WriteLine("Client connection established");
+
+            }
+            catch (ArgumentNullException ae)
+            {
+                Console.WriteLine("ArgumentNullException : {0}", ae.ToString());
+            }
+            catch (SocketException se)
+            {
+                Console.WriteLine("SocketException : {0}", se.ToString());
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Unexpected exception : {0}", e.ToString());
+            }
+
+            byte[] msg = System.Text.Encoding.ASCII.GetBytes("This is a test");
+            int bytesSent = s.Send(msg);
+            Console.WriteLine("Message sent");
+
+            byte[] bytes = new byte[1024];
+            int bytesRec = s.Receive(bytes);
+            Console.WriteLine("Echoed text = {0}",
+                System.Text.Encoding.ASCII.GetString(bytes, 0, bytesRec));
+
+            s.Shutdown(SocketShutdown.Both);
+            s.Close();
+
         }
 
         void MessageReceived(object sender, MessageReceivedEventArgs args)
@@ -195,7 +244,7 @@ namespace RTD_Wormhole
             // push through warmhole until success 
             // nothing bad can happen if the same message is repeated
             LinkClient.SendAsync(e.Data);
-            AppendLog("Client recieved data event");
+            AppendLog("RTDClient recieved data event. Forwarding to Websocket server.");
         }
 
         /// <summary>
@@ -309,6 +358,11 @@ namespace RTD_Wormhole
                 DateTime timestamp = DateTime.Now;
                 textBox1.AppendText(LogStatement(logText));
             }
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            messageTest();
         }
     }
 }

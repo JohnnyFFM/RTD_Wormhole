@@ -53,6 +53,7 @@
             this.ud_client_port = new System.Windows.Forms.NumericUpDown();
             this.label3 = new System.Windows.Forms.Label();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.button2 = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.label14 = new System.Windows.Forms.Label();
             this.pictureBox5 = new System.Windows.Forms.PictureBox();
@@ -73,6 +74,7 @@
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.imageList = new System.Windows.Forms.ImageList(this.components);
+            this.label15 = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
             this.toolStrip.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -278,7 +280,7 @@
             this.tb_client_ip.Name = "tb_client_ip";
             this.tb_client_ip.Size = new System.Drawing.Size(100, 20);
             this.tb_client_ip.TabIndex = 1;
-            this.tb_client_ip.Text = "127.0.0.1";
+            this.tb_client_ip.Text = "192.168.1.16";
             this.tb_client_ip.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // label4
@@ -319,6 +321,8 @@
             // 
             // groupBox3
             // 
+            this.groupBox3.Controls.Add(this.label15);
+            this.groupBox3.Controls.Add(this.button2);
             this.groupBox3.Controls.Add(this.button1);
             this.groupBox3.Controls.Add(this.label14);
             this.groupBox3.Controls.Add(this.pictureBox5);
@@ -343,13 +347,23 @@
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Status";
             // 
+            // button2
+            // 
+            this.button2.Location = new System.Drawing.Point(617, 29);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(91, 26);
+            this.button2.TabIndex = 17;
+            this.button2.Text = "Send message";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
+            // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(482, 95);
+            this.button1.Location = new System.Drawing.Point(654, 151);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(82, 49);
             this.button1.TabIndex = 16;
-            this.button1.Text = "Emmit Test Event";
+            this.button1.Text = "Emmit Test Event (old)";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
@@ -539,6 +553,15 @@
             this.imageList.Images.SetKeyName(1, "connecting.ico");
             this.imageList.Images.SetKeyName(2, "online.ico");
             // 
+            // label15
+            // 
+            this.label15.AutoSize = true;
+            this.label15.Location = new System.Drawing.Point(380, 35);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(231, 13);
+            this.label15.TabIndex = 18;
+            this.label15.Text = "Start client socket and send message to server:";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -630,6 +653,8 @@
         private System.Windows.Forms.PictureBox server_rtd_status;
         private System.Windows.Forms.ToolStripButton btn_testConnection;
         private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Label label15;
     }
 }
 
