@@ -48,6 +48,7 @@ namespace RTD_Wormhole
         private WebSocketServer StartWebSocketServer(string ip, int port)
         {
             WebSocketServer server = new WebSocketServer("ws://" + ip + ":" + port, true);
+            server.RestartAfterListenError = true;
             server.Start(socket =>
                 {
                     socket.OnOpen = () => ServerOnOpen(socket);
@@ -72,10 +73,9 @@ namespace RTD_Wormhole
             client.HeartBeatLost += new EventHandler(Client_OnHeartBeatLost);
             client.Data += new EventHandler<DataEventArgs>(Client_OnData);
             Connections.Add(socket, client);
-            UpdateConnections(Connections.Count);
-
-            ConnectRTD(client);
             ReverseConnections.Add(client, socket);
+            UpdateConnections(Connections.Count);         
+            ConnectRTD(client);          
         }
 
         private void ServerOnClose(IWebSocketConnection socket)
@@ -102,7 +102,16 @@ namespace RTD_Wormhole
             switch(incoming){
                 case SubscriptionRequest sr:
                     AppendLog("Message is a subscription request. Forwarding to RTD...");
-                    Connections[socket].Subscribe(sr.topicID, sr.topicParams);
+                    RtdClient client = Connections[socket];
+                    if (client.Connected)
+                    {
+                        client.Subscribe(sr.topicID, sr.topicParams);
+                    } else
+                    {
+                        AppendLog("Error: RTD server not available!");
+                        socket.Send("Error: RTD server not available!");
+                    }
+                    
                     break;
                 default:
                     AppendLog("Message type unknown.");
@@ -118,8 +127,9 @@ namespace RTD_Wormhole
             {
                 server_rtd_status.Image = imageList.Images[1];
                 AppendLog("RTD Heartbeat lost. Reconnecting...");
+                ReverseConnections[(RtdClient)sender].Send("RTD connection lost. Reconnecting...");
                 System.Threading.Tasks.Task.Delay(10 * 1000).ContinueWith((_) => PostUI(() =>
-            { /*ConnectRTD();*/ }));
+            { ConnectRTD((RtdClient)sender); }));
             });
         }
 
@@ -137,7 +147,8 @@ namespace RTD_Wormhole
         }
         void Client_OnConnect(object sender, EventArgs e)
         {
-                AppendLog("RTD connected."); 
+                AppendLog("RTD connected.");
+                ReverseConnections[(RtdClient)sender].Send("RTD connected.");
                 ChangeConnectionStatus("rtd_link_status", 2);
                 UpdateConnections2(Connections.Count);
         }
