@@ -265,9 +265,9 @@ namespace RTD_Wormhole
     struct RTDdata
     {
         public readonly int count;
-        public readonly byte[] data;
+        public readonly object[,] data;
 
-        public RTDdata(int x, byte[] y)
+        public RTDdata(int x, object[,] y)
         {
             this.count = x;
             this.data = y;

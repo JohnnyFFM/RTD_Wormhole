@@ -97,10 +97,10 @@ Guid("EC0E6191-DB51-11D3-8F3E-00C04F3651B8")]
 
     public class DataEventArgs : EventArgs
     {
-        public byte[] Data { get; set; }
+        public object[,] Data { get; set; }
         public int Count { get; set; }
 
-        public DataEventArgs(int count, byte[] data)
+        public DataEventArgs(int count, object[,] data)
         {
             this.Data = data;
             this.Count = count;
@@ -147,11 +147,10 @@ Guid("EC0E6191-DB51-11D3-8F3E-00C04F3651B8")]
             // receive data from server
             int topicCount = 0;
             object[,] data = rtdServer.RefreshData(ref topicCount);
-            byte[] byteArray = ObjectToByteArray(data);
             if (topicCount > 0)
             {
                 // pass data to handler
-                OnData(new DataEventArgs(topicCount, byteArray));
+                OnData(new DataEventArgs(topicCount, data));
             }
         }
 
