@@ -51,7 +51,7 @@
             this.lbl_conn = new System.Windows.Forms.Label();
             this.server_rtd_status = new System.Windows.Forms.PictureBox();
             this.server_link_status = new System.Windows.Forms.PictureBox();
-            this.label9 = new System.Windows.Forms.Label();
+            this.lbl_rtd = new System.Windows.Forms.Label();
             this.server_ws_status = new System.Windows.Forms.PictureBox();
             this.menuStrip1.SuspendLayout();
             this.toolStrip.SuspendLayout();
@@ -227,7 +227,7 @@
             this.groupBox3.Controls.Add(this.lbl_conn);
             this.groupBox3.Controls.Add(this.server_rtd_status);
             this.groupBox3.Controls.Add(this.server_link_status);
-            this.groupBox3.Controls.Add(this.label9);
+            this.groupBox3.Controls.Add(this.lbl_rtd);
             this.groupBox3.Controls.Add(this.server_ws_status);
             this.groupBox3.Location = new System.Drawing.Point(12, 140);
             this.groupBox3.Name = "groupBox3";
@@ -276,15 +276,15 @@
             this.server_link_status.TabIndex = 14;
             this.server_link_status.TabStop = false;
             // 
-            // label9
+            // lbl_rtd
             // 
-            this.label9.AutoSize = true;
-            this.label9.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label9.Location = new System.Drawing.Point(98, 49);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(216, 16);
-            this.label9.TabIndex = 11;
-            this.label9.Text = "RTDclient (0 connections) <-->";
+            this.lbl_rtd.AutoSize = true;
+            this.lbl_rtd.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbl_rtd.Location = new System.Drawing.Point(98, 49);
+            this.lbl_rtd.Name = "lbl_rtd";
+            this.lbl_rtd.Size = new System.Drawing.Size(216, 16);
+            this.lbl_rtd.TabIndex = 11;
+            this.lbl_rtd.Text = "RTDclient (0 connections) <-->";
             // 
             // server_ws_status
             // 
@@ -358,7 +358,7 @@
         private System.Windows.Forms.Label lbl_conn;
         private System.Windows.Forms.PictureBox server_rtd_status;
         private System.Windows.Forms.PictureBox server_link_status;
-        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.Label lbl_rtd;
         private System.Windows.Forms.PictureBox server_ws_status;
     }
 }
