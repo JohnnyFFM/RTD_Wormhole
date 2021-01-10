@@ -99,10 +99,10 @@ namespace RTD_Wormhole
 
             // deserialise
             object incoming = Helper.ByteArrayToObject(data);
-            switch(incoming){
+            RtdClient client = Connections[socket];
+            switch (incoming){
                 case SubscriptionRequest sr:
-                    AppendLog("Message is a subscription request. Forwarding to RTD...");
-                    RtdClient client = Connections[socket];
+                    AppendLog("Message is a subscription request. Forwarding to RTD...");   
                     if (client.Connected)
                     {
                         client.Subscribe(sr.topicID, sr.topicParams);
@@ -112,6 +112,18 @@ namespace RTD_Wormhole
                         socket.Send("Error: RTD server not available!");
                     }
                     
+                    break;
+                case CancelRequest cr:
+                    AppendLog("Message is a subscription cancellation request. Forwarding to RTD...");
+                    if (client.Connected)
+                    {
+                        client.Unsubscribe(cr.topicID);
+                    }
+                    else
+                    {
+                        AppendLog("Error: RTD server not available!");
+                        socket.Send("Error: RTD server not available!");
+                    }
                     break;
                 default:
                     AppendLog("Message type unknown.");
@@ -135,7 +147,7 @@ namespace RTD_Wormhole
 
         private void ConnectRTD(RtdClient RTDclient)
         {
-            AppendLog("RTD Connecting...");
+            AppendLog("RTD connecting...");
             ChangeConnectionStatus("rtd_link_status", 1);
             bool ret = RTDclient.Connect("xrtd.xrtd", -1);
 
@@ -282,6 +294,17 @@ namespace RTD_Wormhole
         {
             this.count = x;
             this.data = y;
+        }
+    }
+
+    [Serializable]
+    struct CancelRequest
+    {
+        public readonly int topicID;
+
+        public CancelRequest(int x)
+        {
+            this.topicID = x;
         }
     }
 }
