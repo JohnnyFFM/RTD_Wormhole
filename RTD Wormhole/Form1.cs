@@ -81,9 +81,14 @@ namespace RTD_Wormhole
         private void ServerOnClose(IWebSocketConnection socket)
         {
             Connections[socket].Disconnect();
+            ReverseConnections.Remove(Connections[socket]);
             Connections.Remove(socket);
             UpdateConnections(Connections.Count);
-            if (Connections.Count == 0) ChangeConnectionStatus("server_link_status", 1);
+            UpdateConnections2(Connections.Count);
+            if (Connections.Count == 0)
+            {
+                ChangeConnectionStatus("server_link_status", 1);
+            }
             AppendLog("Client disconnected: " + socket.ConnectionInfo.ToString());
         }
 
@@ -168,7 +173,7 @@ namespace RTD_Wormhole
         void Client_OnDisconnect(object sender, EventArgs e)
         {
             AppendLog("RTD disconnected.");
-            ChangeConnectionStatus("rtd_link_status", 0);
+            if (Connections.Count == 1) ChangeConnectionStatus("rtd_link_status", 0);
         }
 
         void Client_OnData(object sender, DataEventArgs e)
