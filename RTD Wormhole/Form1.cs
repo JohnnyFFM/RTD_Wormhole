@@ -11,6 +11,7 @@ namespace RTD_Wormhole
         private readonly SynchronizationContext synchronizationContext;
         private WebSocketServer LinkServer;   
         private readonly Dictionary<IWebSocketConnection, RtdClient> Connections = new Dictionary<IWebSocketConnection, RtdClient>();
+        private readonly Dictionary<IWebSocketConnection, TimeSpan> Delays = new Dictionary<IWebSocketConnection, TimeSpan>();
         private readonly Dictionary<RtdClient, IWebSocketConnection> ReverseConnections = new Dictionary<RtdClient, IWebSocketConnection>();
 
         public Form1()
@@ -75,6 +76,7 @@ namespace RTD_Wormhole
             client.HeartBeatLost += new EventHandler(Client_OnHeartBeatLost);
             client.Data += new EventHandler<DataEventArgs>(Client_OnData);
             Connections.Add(socket, client);
+            Delays.Add(socket, TimeSpan.Zero);
             ReverseConnections.Add(client, socket);
             UpdateConnections(Connections.Count);         
             ConnectRTD(client);          
@@ -85,6 +87,7 @@ namespace RTD_Wormhole
             Connections[socket].Disconnect();
             ReverseConnections.Remove(Connections[socket]);
             Connections.Remove(socket);
+            Delays.Remove(socket);
             UpdateConnections(Connections.Count);
             UpdateConnections2(Connections.Count);
             if (Connections.Count == 0)
@@ -112,6 +115,9 @@ namespace RTD_Wormhole
                     AppendLog("Message is a subscription request. Forwarding to RTD...");   
                     if (client.Connected)
                     {
+                        AppendLog(string.Join(";", sr.topicParams));
+                        ToServerTime(socket, sr.topicParams);
+
                         client.Subscribe(sr.topicID, sr.topicParams);
                     } else
                     {
@@ -138,6 +144,31 @@ namespace RTD_Wormhole
             }          
         }
 
+        void ToServerTime(IWebSocketConnection socket, object[] sr)
+        {
+            for (int i = 0;i<sr.Length;i++)
+            {
+                if (sr[i].ToString().StartsWith("REQUESTTIME"))
+                {
+                    DateTime servertime = DateTime.Now;
+                    DateTime clienttime = DateTime.FromOADate(Double.Parse(sr[i].ToString().Split('=')[1]));
+                    Delays[socket] = clienttime - servertime;
+                    sr[i] = "REQUESTTIME=" + servertime.ToOADate().ToString();
+                }
+            }
+        }
+
+        void ToClientTime(IWebSocketConnection socket, object[,] sr)
+        {
+            for (int i = 0; i < sr.GetLength(1); i++)
+            {
+                if (sr[1,i] is DateTime)
+                {
+                    
+                    sr[1,i] = ((DateTime)sr[1, i]).Add(Delays[socket]);
+                }
+            }
+        }
         // RTD Client
 
         void Client_OnHeartBeatLost(object sender, EventArgs e)
@@ -181,6 +212,7 @@ namespace RTD_Wormhole
         void Client_OnData(object sender, DataEventArgs e)
         {
             AppendLog("RTDClient recieved data event. Forwarding to Websocket client.");
+            ToClientTime(ReverseConnections[(RtdClient)sender], e.Data);
             RTDdata data = new RTDdata(e.Count, e.Data);
             byte[] datab = Helper.ObjectToByteArray(data);
             ReverseConnections[(RtdClient)sender].Send(datab); 
