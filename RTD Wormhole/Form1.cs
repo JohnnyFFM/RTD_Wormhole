@@ -19,6 +19,8 @@ namespace RTD_Wormhole
             synchronizationContext = SynchronizationContext.Current;
             toolStrip.ImageList = imageList;
             tb_srv_ip.Text = Helper.GetLocalIp();
+            // auto-start
+            Btn_server_Click(null, null);
         }
 
         // LinkServer

@@ -311,7 +311,6 @@
             this.MainMenuStrip = this.menuStrip1;
             this.MaximizeBox = false;
             this.MaximumSize = new System.Drawing.Size(782, 550);
-            this.MinimizeBox = false;
             this.MinimumSize = new System.Drawing.Size(782, 550);
             this.Name = "Form1";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
