@@ -1,22 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 using Fleck; // ws server
+using NLog;
 
 namespace RTD_Wormhole
 {
     public partial class Form1 : Form
     {
         private readonly SynchronizationContext synchronizationContext;
-        private WebSocketServer LinkServer;   
-        private readonly Dictionary<IWebSocketConnection, RtdClient> Connections = new Dictionary<IWebSocketConnection, RtdClient>();
-        private readonly Dictionary<IWebSocketConnection, TimeSpan> Delays = new Dictionary<IWebSocketConnection, TimeSpan>();
+        private WebSocketServer LinkServer;
+        private readonly Dictionary<IWebSocketConnection, ConnectionData> Connections = new Dictionary<IWebSocketConnection, ConnectionData>();
         private readonly Dictionary<RtdClient, IWebSocketConnection> ReverseConnections = new Dictionary<RtdClient, IWebSocketConnection>();
-
+        private readonly object connectionLock = new object();
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         public Form1()
         {
             InitializeComponent();
+            var richTextBoxTarget = LogManager.Configuration.FindTargetByName<RichTextBoxTarget>("richtextbox");
+            if (richTextBoxTarget != null)
+            {
+                richTextBoxTarget.RichTextBox = rtb_log; // Das RichTextBox-Steuerelement zuweisen
+            }
+            logger.Info("RTD Wormhole Server Application started");
             synchronizationContext = SynchronizationContext.Current;
             toolStrip.ImageList = imageList;
             tb_srv_ip.Text = Helper.GetLocalIp();
@@ -30,28 +38,32 @@ namespace RTD_Wormhole
             // start/stop websocket server
             if (LinkServer != null)
             {
-                AppendLog("Stopping Wormhole server...");
+                logger.Info("Stopping Wormhole server...");
                 foreach (IWebSocketConnection connection in Connections.Keys) connection.Close();
                 server_link_status.Image = imageList.Images[0];
                 LinkServer.Dispose();
                 LinkServer = null;
                 btn_server.Image = imageList.Images[0];
-                server_ws_status.Image = imageList.Images[0];             
-                AppendLog("Wormhole server down.");
-            } else {
-                AppendLog("Starting Wormhole server...");
+                server_ws_status.Image = imageList.Images[0];
+                logger.Info("Wormhole server down.");
+            }
+            else
+            {
+                logger.Info("Starting Wormhole server...");
                 LinkServer = StartWebSocketServer(tb_srv_ip.Text, Decimal.ToInt32(ud_srv_port.Value));
                 btn_server.Image = imageList.Images[2];
                 server_ws_status.Image = imageList.Images[2];
                 server_link_status.Image = imageList.Images[1];
-                AppendLog("Wormhole server running. Awaiting connections...");
+                logger.Info("Wormhole server running. Awaiting connections...");
             }
         }
 
         private WebSocketServer StartWebSocketServer(string ip, int port)
         {
-            WebSocketServer server = new WebSocketServer("ws://" + ip + ":" + port, true);
-            server.RestartAfterListenError = true;
+            WebSocketServer server = new WebSocketServer("ws://" + ip + ":" + port, true)
+            {
+                RestartAfterListenError = true
+            };
             server.Start(socket =>
                 {
                     socket.OnOpen = () => ServerOnOpen(socket);
@@ -64,95 +76,114 @@ namespace RTD_Wormhole
 
         private void ServerOnOpen(IWebSocketConnection socket)
         {
+            lock (connectionLock)
+            {
+                logger.Info("Client connected: " + socket.ConnectionInfo.ClientIpAddress.ToString() + ":" + socket.ConnectionInfo.ClientPort.ToString());
+                logger.Info("Starting RTD for client: " + socket.ConnectionInfo.ClientIpAddress.ToString() + ":" + socket.ConnectionInfo.ClientPort.ToString());
+                ChangeConnectionStatus("server_link_status", 2);
 
-            AppendLog("Client connected: " + socket.ConnectionInfo.ClientIpAddress.ToString() + ":" + socket.ConnectionInfo.ClientPort.ToString());
-            AppendLog("Starting RTD for client: " + socket.ConnectionInfo.ClientIpAddress.ToString() + ":" + socket.ConnectionInfo.ClientPort.ToString()); 
-            ChangeConnectionStatus("server_link_status", 2);
+                // create RTD client for connection
+                RtdClient client = new RtdClient();
+                client.EConnect += new EventHandler(Client_OnConnect);
+                client.EDisconnect += new EventHandler(Client_OnDisconnect);
+                client.HeartBeatLost += new EventHandler(Client_OnHeartBeatLost);
+                client.Data += new EventHandler<DataEventArgs>(Client_OnData);
 
-            // create RTD client for connection
-            RtdClient client = new RtdClient();
-            client.EConnect += new EventHandler(Client_OnConnect);
-            client.EDisconnect += new EventHandler(Client_OnDisconnect);
-            client.HeartBeatLost += new EventHandler(Client_OnHeartBeatLost);
-            client.Data += new EventHandler<DataEventArgs>(Client_OnData);
-            Connections.Add(socket, client);
-            Delays.Add(socket, TimeSpan.Zero);
-            ReverseConnections.Add(client, socket);
-            UpdateConnections(Connections.Count);         
-            ConnectRTD(client);          
+                // Add to Connections and ReverseConnections inside the lock
+                Connections.Add(socket, new ConnectionData { Client = client, Delay = TimeSpan.Zero });
+                ReverseConnections.Add(client, socket);
+
+                UpdateConnections(Connections.Count);
+                ConnectRTD(client, $"{socket.ConnectionInfo.ClientIpAddress}:{socket.ConnectionInfo.ClientPort}");
+            }
         }
 
         private void ServerOnClose(IWebSocketConnection socket)
         {
-            Connections[socket].Disconnect();
-            ReverseConnections.Remove(Connections[socket]);
-            Connections.Remove(socket);
-            Delays.Remove(socket);
-            UpdateConnections(Connections.Count);
-            UpdateConnections2(Connections.Count);
-            if (Connections.Count == 0)
+            lock (connectionLock)
             {
-                ChangeConnectionStatus("server_link_status", 1);
+                if (Connections.ContainsKey(socket))
+                {
+                    Connections[socket].Client.Disconnect();
+                    string client = $"{socket.ConnectionInfo.ClientIpAddress}:{socket.ConnectionInfo.ClientPort}";
+                    logger.Info($"RTD disconnected for client {client}");
+                    ReverseConnections.Remove(Connections[socket].Client);
+                    Connections.Remove(socket);
+                    UpdateConnections(Connections.Count);
+                    UpdateRTDConnections(Connections.Count);
+
+                    if (Connections.Count == 0)
+                    {
+                        ChangeConnectionStatus("server_link_status", 1);
+                    }
+                    logger.Info("Client disconnected: " + socket.ConnectionInfo.ClientIpAddress.ToString() + ":" + socket.ConnectionInfo.ClientPort.ToString());
+                }
             }
-            AppendLog("Client disconnected: " + socket.ConnectionInfo.ToString());
         }
 
         private void ServerOnMessage(IWebSocketConnection socket, string message)
         {
-            AppendLog("Websocket server received text message. Echo...");
-            socket.Send(message);
+            try
+            {
+                logger.Info("Websocket server received text message. Echo...");
+                socket.Send(message);
+            }
+            catch (Exception ex)
+            {
+                logger.Error("Error processing message: " + ex.Message);
+                socket.Close();
+            }
         }
 
         private void ServerOnBinary(IWebSocketConnection socket, byte[] data)
         {
-            AppendLog("Websocket server received binary message.");
-
             // deserialise
             object incoming = Helper.ByteArrayToObject(data);
-            RtdClient client = Connections[socket];
-            switch (incoming){
+            RtdClient client = Connections[socket].Client;
+            switch (incoming)
+            {
                 case SubscriptionRequest sr:
-                    AppendLog("Message is a subscription request. Forwarding to RTD...");   
                     if (client.Connected)
                     {
-                        AppendLog(string.Join(";", sr.topicParams));
+                        logger.Debug($"↓[SUB] Client: {socket.ConnectionInfo.ClientIpAddress}:{socket.ConnectionInfo.ClientPort}, ID: {sr.topicID}, Data: {string.Join(";", sr.topicParams)})");
                         ToServerTime(socket, sr.topicParams);
 
                         client.Subscribe(sr.topicID, sr.topicParams);
-                    } else
-                    {
-                        AppendLog("Error: RTD server not available!");
-                        socket.Send("Error: RTD server not available!");
                     }
-                    
+                    else
+                    {
+                        logger.Error("Error: RTD server not available, subscribe failed!");
+                        socket.Send("Error: RTD server not available, subscribe failed!");
+                    }
+
                     break;
                 case CancelRequest cr:
-                    AppendLog("Message is a subscription cancellation request. Forwarding to RTD...");
                     if (client.Connected)
                     {
+                        logger.Debug($"↓[CXL] Client: {socket.ConnectionInfo.ClientIpAddress}:{socket.ConnectionInfo.ClientPort}, ID: {cr.topicID})");
                         client.Unsubscribe(cr.topicID);
                     }
                     else
                     {
-                        AppendLog("Error: RTD server not available!");
-                        socket.Send("Error: RTD server not available!");
+                        logger.Error("Error: RTD server not available, unsubscribe failed!");
+                        socket.Send("Error: RTD server not available, unsubscribe failed!");
                     }
                     break;
                 default:
-                    AppendLog("Message type unknown.");
+                    logger.Error("Error: Binary Message type unknown.");
                     break;
-            }          
+            }
         }
 
         void ToServerTime(IWebSocketConnection socket, object[] sr)
         {
-            for (int i = 0;i<sr.Length;i++)
+            for (int i = 0; i < sr.Length; i++)
             {
                 if (sr[i].ToString().StartsWith("REQUESTTIME"))
                 {
                     DateTime servertime = DateTime.Now;
                     DateTime clienttime = DateTime.FromOADate(Double.Parse(sr[i].ToString().Split('=')[1]));
-                    Delays[socket] = clienttime - servertime;
+                    Connections[socket].Delay = clienttime - servertime;
                     sr[i] = "REQUESTTIME=" + servertime.ToOADate().ToString();
                 }
             }
@@ -162,10 +193,10 @@ namespace RTD_Wormhole
         {
             for (int i = 0; i < sr.GetLength(1); i++)
             {
-                if (sr[1,i] is DateTime)
+                if (sr[1, i] is DateTime)
                 {
-                    
-                    sr[1,i] = ((DateTime)sr[1, i]).Add(Delays[socket]);
+
+                    sr[1, i] = ((DateTime)sr[1, i]).Add(Connections[socket].Delay);
                 }
             }
         }
@@ -173,49 +204,86 @@ namespace RTD_Wormhole
 
         void Client_OnHeartBeatLost(object sender, EventArgs e)
         {
-            PostUI(() =>
+            lock (connectionLock)
             {
-                server_rtd_status.Image = imageList.Images[1];
-                AppendLog("RTD Heartbeat lost. Reconnecting...");
-                ReverseConnections[(RtdClient)sender].Send("RTD connection lost. Reconnecting...");
-                System.Threading.Tasks.Task.Delay(10 * 1000).ContinueWith((_) => PostUI(() =>
-            { ConnectRTD((RtdClient)sender); }));
-            });
+                PostUI(() =>
+                {
+                    server_rtd_status.Image = imageList.Images[1];
+                    logger.Warn("RTD Heartbeat lost. Reconnecting...");
+                    string client = string.Empty;
+                    if (ReverseConnections.TryGetValue((RtdClient)sender, out var socket))
+                    {
+                        socket.Send("RTD connection lost. Reconnecting...");
+                        client = $"s{socket.ConnectionInfo.ClientIpAddress}:{socket.ConnectionInfo.ClientPort}";
+                        System.Threading.Tasks.Task.Delay(10 * 1000).ContinueWith((_) => PostUI(() =>
+                        {
+                            ConnectRTD((RtdClient)sender, client);
+                        }));
+                    } else
+                    {
+                        logger.Error("Heartbeat loss on unknown RTD.");
+                    }
+                });
+            }
         }
 
-        private void ConnectRTD(RtdClient RTDclient)
+        private void ConnectRTD(RtdClient RTDclient, string client)
         {
-            AppendLog("RTD connecting...");
             ChangeConnectionStatus("rtd_link_status", 1);
             bool ret = RTDclient.Connect("xrtd.xrtd", -1);
 
             if (!ret)
             {
-                AppendLog("RTD Connection failed.");
+                logger.Error($"RTD Connection failed for client {client}");
                 ChangeConnectionStatus("rtd_link_status", 0);
             }
         }
         void Client_OnConnect(object sender, EventArgs e)
         {
-                AppendLog("RTD connected.");
-                ReverseConnections[(RtdClient)sender].Send("RTD connected.");
+            lock (connectionLock)
+            {
+                string client = string.Empty;
+                if (ReverseConnections.TryGetValue((RtdClient)sender, out var socket))
+                {
+                    socket.Send("RTD connected.");
+                    client = $"{socket.ConnectionInfo.ClientIpAddress}:{socket.ConnectionInfo.ClientPort}";
+                } else
+                {
+                    logger.Error("Connected unknown RTD.");
+                }
+                logger.Info($"RTD connected for {client}");
                 ChangeConnectionStatus("rtd_link_status", 2);
-                UpdateConnections2(Connections.Count);
+                UpdateRTDConnections(Connections.Count);
+            }
         }
 
         void Client_OnDisconnect(object sender, EventArgs e)
         {
-            AppendLog("RTD disconnected.");
-            if (Connections.Count == 1) ChangeConnectionStatus("rtd_link_status", 0);
+            lock (connectionLock)
+            {
+                if (Connections.Count == 1)
+                {
+                    ChangeConnectionStatus("rtd_link_status", 0);
+                }
+            }
         }
 
         void Client_OnData(object sender, DataEventArgs e)
         {
-            AppendLog("RTDClient recieved data event. Forwarding to Websocket client.");
-            ToClientTime(ReverseConnections[(RtdClient)sender], e.Data);
-            RTDdata data = new RTDdata(e.Count, e.Data);
-            byte[] datab = Helper.ObjectToByteArray(data);
-            ReverseConnections[(RtdClient)sender].Send(datab); 
+            lock (connectionLock)
+            {                
+                if (ReverseConnections.TryGetValue((RtdClient)sender, out var socket))
+                {
+                    ToClientTime(socket, e.Data);
+                    logger.Debug($"↑[DATA] Target: {socket.ConnectionInfo.ClientIpAddress}:{socket.ConnectionInfo.ClientPort}, Count: {e.Count}, Data: [{string.Join(", ", Enumerable.Range(0, e.Data.GetLength(1)).Select(j => $"{e.Data[0, j]}:{e.Data[1, j]}"))}]");
+                    RTDdata data = new RTDdata(e.Count, e.Data);
+                    byte[] datab = Helper.ObjectToByteArray(data);
+                    socket.Send(datab);
+                } else
+                {
+                    logger.Warn($"[WARN] RTDClient received data event, but client down: {socket.ConnectionInfo.ClientIpAddress}:{socket.ConnectionInfo.ClientPort}");
+                }
+            }
         }
 
         // UI
@@ -232,6 +300,7 @@ namespace RTD_Wormhole
         private void ExitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             // TODO: shutdown server, client and all active connections
+            Btn_server_Click(null, null); // Server stoppen
             Application.Exit();
         }
 
@@ -240,17 +309,9 @@ namespace RTD_Wormhole
             return "[" + DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToLongTimeString() + "] " + logText + Environment.NewLine;
         }
 
-        public void ChangeConnectionStatus(string target, int status, bool debug = false)
+        public void ChangeConnectionStatus(string target, int status)
         {
-            if (debug)
-                return;
-            if (this.InvokeRequired)
-            {
-                this.Invoke(
-                    new MethodInvoker(
-                     delegate () { ChangeConnectionStatus(target, status, debug); }));
-            }
-            else
+            PostUI(() =>
             {
                 switch (target)
                 {
@@ -261,52 +322,18 @@ namespace RTD_Wormhole
                         server_rtd_status.Image = imageList.Images[status];
                         break;
                 }
-            }
+            });
         }
 
         public void UpdateConnections(int count)
         {
-            if (this.InvokeRequired)
-            {
-                this.Invoke(
-                    new MethodInvoker(
-                    delegate () { UpdateConnections(count); }));
-            }
-            else
-            {
-                lbl_conn.Text = "Link (" + count.ToString() + " connections)";
-            }
+            PostUI(() => lbl_conn.Text = "Link (" + count.ToString() + " connections)");
         }
 
-        public void UpdateConnections2(int count)
-        {
-            if (this.InvokeRequired)
-            {
-                this.Invoke(
-                    new MethodInvoker(
-                    delegate () { UpdateConnections2(count); }));
-            }
-            else
-            {
-                lbl_rtd.Text = "RTDclient (" + count.ToString() + " connections) <-->";
-            }
-        }
 
-        public void AppendLog(string logText, bool debug = false)
+        public void UpdateRTDConnections(int count)
         {
-            if (debug)
-                return;
-            if (this.InvokeRequired)
-            {
-                this.Invoke(
-                    new MethodInvoker(
-                    delegate () { AppendLog(logText); }));
-            }
-            else
-            {
-                DateTime timestamp = DateTime.Now;
-                tb_log.AppendText(LogStatement(logText));
-            }
+            PostUI(() => lbl_rtd.Text = "RTDclient (" + count.ToString() + " connections) <-->");
         }
     }
 

@@ -6,6 +6,11 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 namespace RTD_Wormhole
 {
+    class ConnectionData
+    {
+        public RtdClient Client { get; set; }
+        public TimeSpan Delay { get; set; }
+    }
     static class Helper
     {
         public static string GetLocalIp()

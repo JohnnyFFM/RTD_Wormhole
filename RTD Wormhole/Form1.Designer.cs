@@ -44,7 +44,7 @@
             this.label6 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
-            this.tb_log = new System.Windows.Forms.TextBox();
+            this.rtb_log = new System.Windows.Forms.RichTextBox();
             this.imageList = new System.Windows.Forms.ImageList(this.components);
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.label10 = new System.Windows.Forms.Label();
@@ -171,7 +171,7 @@
             this.ud_srv_port.TabIndex = 5;
             this.ud_srv_port.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.ud_srv_port.Value = new decimal(new int[] {
-            7777,
+            8888,
             0,
             0,
             0});
@@ -196,7 +196,7 @@
             // 
             // groupBox4
             // 
-            this.groupBox4.Controls.Add(this.tb_log);
+            this.groupBox4.Controls.Add(this.rtb_log);
             this.groupBox4.Location = new System.Drawing.Point(12, 260);
             this.groupBox4.Name = "groupBox4";
             this.groupBox4.Size = new System.Drawing.Size(742, 218);
@@ -204,14 +204,13 @@
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Logs";
             // 
-            // tb_log
+            // rtb_log
             // 
-            this.tb_log.Location = new System.Drawing.Point(9, 19);
-            this.tb_log.Multiline = true;
-            this.tb_log.Name = "tb_log";
-            this.tb_log.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.tb_log.Size = new System.Drawing.Size(727, 193);
-            this.tb_log.TabIndex = 0;
+            this.rtb_log.Location = new System.Drawing.Point(10, 19);
+            this.rtb_log.Name = "rtb_log";
+            this.rtb_log.Size = new System.Drawing.Size(726, 193);
+            this.rtb_log.TabIndex = 0;
+            this.rtb_log.Text = "";
             // 
             // imageList
             // 
@@ -323,7 +322,6 @@
             this.groupBox1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ud_srv_port)).EndInit();
             this.groupBox4.ResumeLayout(false);
-            this.groupBox4.PerformLayout();
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.server_rtd_status)).EndInit();
@@ -348,7 +346,6 @@
         private System.Windows.Forms.NumericUpDown ud_srv_port;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.GroupBox groupBox4;
-        private System.Windows.Forms.TextBox tb_log;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
         private System.Windows.Forms.ImageList imageList;
@@ -359,6 +356,7 @@
         private System.Windows.Forms.PictureBox server_link_status;
         private System.Windows.Forms.Label lbl_rtd;
         private System.Windows.Forms.PictureBox server_ws_status;
+        private System.Windows.Forms.RichTextBox rtb_log;
     }
 }
 
