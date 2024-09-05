@@ -70,8 +70,34 @@ namespace RTD_Wormhole
                     socket.OnClose = () => ServerOnClose(socket);
                     socket.OnMessage = message => ServerOnMessage(socket, message);
                     socket.OnBinary = data => ServerOnBinary(socket, data);
+                    socket.OnError = (ex) => ServerOnError(socket, ex); // Handle errors
                 });
             return server;
+        }
+
+        private void ServerOnError(IWebSocketConnection socket, Exception ex)
+        {
+            logger.Error("WebSocket error: " + ex.Message);
+            socket.Close(); // Close the socket in case of error
+            lock (connectionLock)
+            {
+                if (Connections.ContainsKey(socket))
+                {
+                    Connections[socket].Client.Disconnect();
+                    string client = $"{socket.ConnectionInfo.ClientIpAddress}:{socket.ConnectionInfo.ClientPort}";
+                    logger.Info($"RTD disconnected for client {client}");
+                    ReverseConnections.Remove(Connections[socket].Client);
+                    Connections.Remove(socket);
+                    UpdateConnections(Connections.Count);
+                    UpdateRTDConnections(Connections.Count);
+
+                    if (Connections.Count == 0)
+                    {
+                        ChangeConnectionStatus("server_link_status", 1);
+                    }
+                    logger.Info("Client disconnected: " + socket.ConnectionInfo.ClientIpAddress.ToString() + ":" + socket.ConnectionInfo.ClientPort.ToString());
+                }
+            }
         }
 
         private void ServerOnOpen(IWebSocketConnection socket)
