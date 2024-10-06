@@ -171,7 +171,7 @@
             this.ud_srv_port.TabIndex = 5;
             this.ud_srv_port.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.ud_srv_port.Value = new decimal(new int[] {
-            8888,
+            9999,
             0,
             0,
             0});
