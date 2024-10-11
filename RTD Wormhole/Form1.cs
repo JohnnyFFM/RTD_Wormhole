@@ -28,6 +28,8 @@ namespace RTD_Wormhole
             synchronizationContext = SynchronizationContext.Current;
             toolStrip.ImageList = imageList;
             tb_srv_ip.Text = Helper.GetLocalIp();
+            ud_srv_port.Value = Properties.Settings.Default.port;
+            tb_srv_progid.Text = Properties.Settings.Default.progid;
             // auto-start
             Btn_server_Click(null, null);
         }
@@ -360,6 +362,18 @@ namespace RTD_Wormhole
         public void UpdateRTDConnections(int count)
         {
             PostUI(() => lbl_rtd.Text = "RTDclient (" + count.ToString() + " connections) <-->");
+        }
+
+        private void ud_srv_port_ValueChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.port = ud_srv_port.Value;
+            Properties.Settings.Default.Save();
+        }
+
+        private void tb_srv_progid_TextChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.progid = tb_srv_progid.Text;
+            Properties.Settings.Default.Save();
         }
     }
 

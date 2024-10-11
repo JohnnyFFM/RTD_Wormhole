@@ -85,7 +85,7 @@
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(93, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(92, 22);
             this.exitToolStripMenuItem.Text = "&Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.ExitToolStripMenuItem_Click);
             // 
@@ -157,6 +157,7 @@
             this.tb_srv_progid.TabIndex = 1;
             this.tb_srv_progid.Text = "xrtd.xrtd";
             this.tb_srv_progid.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.tb_srv_progid.TextChanged += new System.EventHandler(this.tb_srv_progid_TextChanged);
             // 
             // ud_srv_port
             // 
@@ -175,6 +176,7 @@
             0,
             0,
             0});
+            this.ud_srv_port.ValueChanged += new System.EventHandler(this.ud_srv_port_ValueChanged);
             // 
             // label6
             // 
@@ -241,7 +243,7 @@
             this.label10.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label10.Location = new System.Drawing.Point(342, 49);
             this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(158, 16);
+            this.label10.Size = new System.Drawing.Size(157, 16);
             this.label10.TabIndex = 13;
             this.label10.Text = "Wormhole Server <-->";
             // 
@@ -251,7 +253,7 @@
             this.lbl_conn.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lbl_conn.Location = new System.Drawing.Point(528, 49);
             this.lbl_conn.Name = "lbl_conn";
-            this.lbl_conn.Size = new System.Drawing.Size(145, 16);
+            this.lbl_conn.Size = new System.Drawing.Size(144, 16);
             this.lbl_conn.TabIndex = 15;
             this.lbl_conn.Text = "Link (0 connections)";
             // 
@@ -281,7 +283,7 @@
             this.lbl_rtd.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lbl_rtd.Location = new System.Drawing.Point(98, 49);
             this.lbl_rtd.Name = "lbl_rtd";
-            this.lbl_rtd.Size = new System.Drawing.Size(216, 16);
+            this.lbl_rtd.Size = new System.Drawing.Size(215, 16);
             this.lbl_rtd.TabIndex = 11;
             this.lbl_rtd.Text = "RTDclient (0 connections) <-->";
             // 
